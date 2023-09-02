@@ -20,7 +20,7 @@ func TestUserController(t *testing.T) {
 		user := map[string]interface{}{
 			"name":     "John",
 			"email":    "john@example.com",
-			"password": "password",
+			"password": "Uppercasea005500",
 		}
 		userJSON, _ := json.Marshal(user)
 
@@ -72,7 +72,7 @@ func TestUserController(t *testing.T) {
 		user := map[string]interface{}{
 			"name":     "John Updated",
 			"email":    "john_updated@example.com",
-			"password": "new_password",
+			"password": "UpdatedUppercasea005500",
 		}
 		userJSON, _ := json.Marshal(user)
 

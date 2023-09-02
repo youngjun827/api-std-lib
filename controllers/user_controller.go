@@ -9,6 +9,7 @@ import (
 
 	"github.com/youngjun827/api-std-lib/db"
 	"github.com/youngjun827/api-std-lib/models"
+	"github.com/youngjun827/api-std-lib/utility"
 )
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
@@ -19,6 +20,12 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	validator_err := utility.ValidateUser(user)
+    if validator_err != nil {
+        http.Error(w, validator_err.Error(), http.StatusBadRequest)
+        return
+    }
 
 	defer r.Body.Close()
 
@@ -102,6 +109,13 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	validator_err := utility.ValidateUser(user)
+    if validator_err != nil {
+        http.Error(w, validator_err.Error(), http.StatusBadRequest)
+        return
+    }
+
 	defer r.Body.Close()
 
 	sqlStatement := `UPDATE users SET name=$1, email=$2, password=$3 WHERE id=$4`
