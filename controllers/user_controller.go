@@ -3,10 +3,12 @@ package controllers
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
 
+	"github.com/youngjun827/api-std-lib/cache"
 	"github.com/youngjun827/api-std-lib/db"
 	"github.com/youngjun827/api-std-lib/models"
 	"github.com/youngjun827/api-std-lib/utility"
@@ -49,6 +51,13 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	  // Try to fetch user from cache first
+	if user, found := cache.GetUserFromCache(id); found {
+		fmt.Println("Cache hit")
+		json.NewEncoder(w).Encode(user)
+		return
+	}
+
 	var user models.User
 	sqlStatement := `SELECT id, name, email, password FROM users WHERE id=$1`
 	row := db.DB.QueryRow(sqlStatement, id)
@@ -62,6 +71,8 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	cache.SetUserToCache(id, user)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(user)
@@ -126,6 +137,11 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusNoContent)
+
+	// Update the cache
+	cache.SetUserToCache(id, user)
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
@@ -144,4 +160,8 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusNoContent)
+
+	cache.DeleteUserFromCache(id)
+
+    w.WriteHeader(http.StatusNoContent)
 }
