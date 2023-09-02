@@ -1,8 +1,11 @@
 package controllers
 
 import (
+	"database/sql"
 	"encoding/json"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/youngjun827/api-std-lib/db"
 	"github.com/youngjun827/api-std-lib/models"
@@ -29,4 +32,30 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(id)
+}
+
+func GetUser(w http.ResponseWriter, r *http.Request) {
+	idParam := strings.TrimPrefix(r.URL.Path, "/user/")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var user models.User
+	sqlStatement := `SELECT id, name, email, password FROM users WHERE id=$1`
+	row := db.DB.QueryRow(sqlStatement, id)
+
+	err = row.Scan(&user.ID, &user.Name, &user.Email, &user.Password)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			http.Error(w, "User not found", http.StatusNotFound)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(user)
 }
