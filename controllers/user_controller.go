@@ -79,32 +79,56 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func ListUsers(w http.ResponseWriter, r *http.Request) {
-	var users []models.User
+    fmt.Println("ListUsers function started")
 
-	rows, err := db.DB.Query(`SELECT id, name, email, password FROM users`)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer rows.Close()
+    userChannel := make(chan []models.User, 1)
+    errorChannel := make(chan error, 1)
 
-	for rows.Next() {
-		var user models.User
-		if err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.Password); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		users = append(users, user)
-	}
+    go func() {
+        fmt.Println("Goroutine for fetching users started")
 
-	if err := rows.Err(); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+        var users []models.User
+        rows, err := db.DB.Query(`SELECT id, name, email, password FROM users`)
+        if err != nil {
+            fmt.Println("Error in database query:", err)
+            errorChannel <- err
+            return
+        }
+        defer rows.Close()
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(users)
+        for rows.Next() {
+            var user models.User
+            if err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.Password); err != nil {
+                fmt.Println("Error in row scanning:", err)
+                errorChannel <- err
+                return
+            }
+            users = append(users, user)
+        }
+
+        if err := rows.Err(); err != nil {
+            fmt.Println("Row error:", err)
+            errorChannel <- err
+            return
+        }
+
+        fmt.Println("Goroutine for fetching users completed")
+        userChannel <- users
+    }()
+
+    select {
+    case users := <-userChannel:
+        fmt.Println("Received users from channel")
+        w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(users)
+    case err := <-errorChannel:
+        fmt.Println("Received error from channel:", err)
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+    }
+
+    fmt.Println("ListUsers function completed")
 }
+
 
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	idParam := strings.TrimPrefix(r.URL.Path, "/user/")
