@@ -2,17 +2,21 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/youngjun827/api-std-lib/db"
+	"github.com/youngjun827/api-std-lib/routes"
 )
 
 func main() {
 	db.InitDB()
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello, World!")
-	})
+	routes.SetupRoutes()
 
-	http.ListenAndServe(":8080", nil)
+	fmt.Println("Server is running on port 8080...")
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		log.Fatalf("Could not start server: %v", err)
+	}
 }
