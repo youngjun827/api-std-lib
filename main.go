@@ -6,10 +6,12 @@ import (
 	"net/http"
 
 	"github.com/youngjun827/api-std-lib/db"
+	"github.com/youngjun827/api-std-lib/logger"
 	"github.com/youngjun827/api-std-lib/routes"
 )
 
 func main() {
+	logger.InitLogger()
 	db.InitDB()
 
 	routes.SetupRoutes()

@@ -10,6 +10,7 @@ import (
 
 	"github.com/youngjun827/api-std-lib/cache"
 	"github.com/youngjun827/api-std-lib/db"
+	"github.com/youngjun827/api-std-lib/logger"
 	"github.com/youngjun827/api-std-lib/models"
 	"github.com/youngjun827/api-std-lib/utility"
 )
@@ -44,6 +45,8 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetUser(w http.ResponseWriter, r *http.Request) {
+	logger.Info.Println("GetUser function started")
+
 	idParam := strings.TrimPrefix(r.URL.Path, "/user/")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
@@ -53,7 +56,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 
 	  // Try to fetch user from cache first
 	if user, found := cache.GetUserFromCache(id); found {
-		fmt.Println("Cache hit")
+		logger.Info.Println("Cache hit")
 		json.NewEncoder(w).Encode(user)
 		return
 	}
@@ -68,18 +71,20 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "User not found", http.StatusNotFound)
 			return
 		}
+		logger.Error.Println("Failed to get user:", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	cache.SetUserToCache(id, user)
 
+	logger.Info.Printf("User fetched with ID: %d", id)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(user)
 }
 
 func ListUsers(w http.ResponseWriter, r *http.Request) {
-    fmt.Println("ListUsers function started")
+	logger.Info.Println("ListUsers function started")
 
     userChannel := make(chan []models.User, 1)
     errorChannel := make(chan error, 1)
@@ -90,7 +95,6 @@ func ListUsers(w http.ResponseWriter, r *http.Request) {
         var users []models.User
         rows, err := db.DB.Query(`SELECT id, name, email, password FROM users`)
         if err != nil {
-            fmt.Println("Error in database query:", err)
             errorChannel <- err
             return
         }
@@ -99,7 +103,6 @@ func ListUsers(w http.ResponseWriter, r *http.Request) {
         for rows.Next() {
             var user models.User
             if err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.Password); err != nil {
-                fmt.Println("Error in row scanning:", err)
                 errorChannel <- err
                 return
             }
@@ -111,26 +114,24 @@ func ListUsers(w http.ResponseWriter, r *http.Request) {
             errorChannel <- err
             return
         }
-
-        fmt.Println("Goroutine for fetching users completed")
         userChannel <- users
     }()
 
     select {
     case users := <-userChannel:
-        fmt.Println("Received users from channel")
         w.Header().Set("Content-Type", "application/json")
         json.NewEncoder(w).Encode(users)
     case err := <-errorChannel:
-        fmt.Println("Received error from channel:", err)
         http.Error(w, err.Error(), http.StatusInternalServerError)
     }
 
-    fmt.Println("ListUsers function completed")
+	logger.Info.Println("ListUsers function completed")
 }
 
 
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
+	logger.Info.Println("UpdateUser function started")
+
 	idParam := strings.TrimPrefix(r.URL.Path, "/user/")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
@@ -156,9 +157,11 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	sqlStatement := `UPDATE users SET name=$1, email=$2, password=$3 WHERE id=$4`
 	_, err = db.DB.Exec(sqlStatement, user.Name, user.Email, user.Password, id)
 	if err != nil {
+		logger.Error.Println("Failed to update user:", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	logger.Info.Printf("User updated with ID: %d", id)
 
 	w.WriteHeader(http.StatusNoContent)
 
@@ -169,6 +172,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
+	logger.Info.Println("DeleteUser function started")
 	idParam := strings.TrimPrefix(r.URL.Path, "/user/")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
@@ -179,11 +183,12 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	sqlStatement := `DELETE FROM users WHERE id=$1`
 	_, err = db.DB.Exec(sqlStatement, id)
 	if err != nil {
+		logger.Error.Println("Failed to delete user:", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	logger.Info.Printf("User deleted with ID: %d", id)
 
 	cache.DeleteUserFromCache(id)
 
