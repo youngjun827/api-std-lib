@@ -87,3 +87,29 @@ func ListUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(users)
 }
+
+func UpdateUser(w http.ResponseWriter, r *http.Request) {
+	idParam := strings.TrimPrefix(r.URL.Path, "/user/")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var user models.User
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&user); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	sqlStatement := `UPDATE users SET name=$1, email=$2, password=$3 WHERE id=$4`
+	_, err = db.DB.Exec(sqlStatement, user.Name, user.Email, user.Password, id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}

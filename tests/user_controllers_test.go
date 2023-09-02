@@ -100,3 +100,27 @@ func TestListUsers(t *testing.T) {
 		t.Errorf("No users found: got %v", users)
 	}
 }
+
+func TestUpdateUser(t *testing.T) {
+	db.InitDB()
+
+	user := map[string]interface{}{
+		"name":     "John Updated",
+		"email":    "john_updated@example.com",
+		"password": "new_password",
+	}
+	userJSON, _ := json.Marshal(user)
+
+	req, err := http.NewRequest("PUT", "/user/1", bytes.NewBuffer(userJSON))
+	if err != nil {
+		t.Fatalf("Could not create request: %v", err)
+	}
+
+	recorder := httptest.NewRecorder()
+	handler := http.HandlerFunc(controllers.UpdateUser)
+	handler.ServeHTTP(recorder, req)
+
+	if status := recorder.Code; status != http.StatusNoContent {
+		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusNoContent)
+	}
+}
