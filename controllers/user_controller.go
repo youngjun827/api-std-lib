@@ -15,20 +15,28 @@ import (
 	"github.com/youngjun827/api-std-lib/utility"
 )
 
+func init() {
+	logger.InitLogger()
+}
+
 func CreateUser(w http.ResponseWriter, r *http.Request) {
+	logger.Info.Println("CreateUser function started")
+
 	var user models.User
 	decoder := json.NewDecoder(r.Body)
 
 	if err := decoder.Decode(&user); err != nil {
+		logger.Error.Println("Failed to decode request body:", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	validator_err := utility.ValidateUser(user)
-    if validator_err != nil {
-        http.Error(w, validator_err.Error(), http.StatusBadRequest)
-        return
-    }
+	validatorErr := utility.ValidateUser(user)
+	if validatorErr != nil {
+		logger.Error.Println("Validation error:", validatorErr)
+		http.Error(w, validatorErr.Error(), http.StatusBadRequest)
+		return
+	}
 
 	defer r.Body.Close()
 
@@ -36,6 +44,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	id := 0
 	err := db.DB.QueryRow(sqlStatement, user.Name, user.Email, user.Password).Scan(&id)
 	if err != nil {
+		logger.Error.Println("Failed to create user:", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
