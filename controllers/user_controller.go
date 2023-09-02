@@ -113,3 +113,21 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusNoContent)
 }
+
+func DeleteUser(w http.ResponseWriter, r *http.Request) {
+	idParam := strings.TrimPrefix(r.URL.Path, "/user/")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	sqlStatement := `DELETE FROM users WHERE id=$1`
+	_, err = db.DB.Exec(sqlStatement, id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
