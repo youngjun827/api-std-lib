@@ -1,4 +1,4 @@
-package utility
+package rate
 
 import (
 	"net/http"
