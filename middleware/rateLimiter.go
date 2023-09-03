@@ -1,4 +1,4 @@
-package rate
+package middleware
 
 import (
 	"net/http"

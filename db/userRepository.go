@@ -3,7 +3,7 @@ package db
 import (
 	"database/sql"
 
-	"github.com/youngjun827/api-std-lib/models"
+	"github.com/youngjun827/api-std-lib/api/models"
 )
 
 type UserRepository interface {

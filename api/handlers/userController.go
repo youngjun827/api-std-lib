@@ -1,4 +1,4 @@
-package controllers
+package handlers
 
 import (
 	"database/sql"
@@ -7,11 +7,11 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/youngjun827/api-std-lib/api/models"
 	"github.com/youngjun827/api-std-lib/cache"
 	"github.com/youngjun827/api-std-lib/db"
 	"github.com/youngjun827/api-std-lib/logger"
-	"github.com/youngjun827/api-std-lib/models"
-	"github.com/youngjun827/api-std-lib/validation"
+	"github.com/youngjun827/api-std-lib/middleware"
 )
 
 var userRepository db.UserRepository
@@ -34,19 +34,19 @@ func CreateUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRe
 	}
 
 	// Validate email and password in addition to user
-	if !validation.ValidateEmail(user.Email) {
+	if !middleware.ValidateEmail(user.Email) {
 		logger.Error.Println("Invalid email format")
 		http.Error(w, "Invalid email format", http.StatusBadRequest)
 		return
 	}
 
-	if !validation.ValidatePassword(user.Password) {
+	if !middleware.ValidatePassword(user.Password) {
 		logger.Error.Println("Invalid password format")
 		http.Error(w, "Invalid password format", http.StatusBadRequest)
 		return
 	}
 
-	validatorErr := validation.ValidateUser(user)
+	validatorErr := middleware.ValidateUser(user)
 	if validatorErr != nil {
 		logger.Error.Println("Validation error:", validatorErr)
 		http.Error(w, validatorErr.Error(), http.StatusBadRequest)
@@ -133,20 +133,20 @@ func UpdateUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRe
 	}
 
 	// Validate email and password in addition to user
-	if !validation.ValidateEmail(user.Email) {
+	if !middleware.ValidateEmail(user.Email) {
 		logger.Error.Println("Invalid email format")
 		http.Error(w, "Invalid email format", http.StatusBadRequest)
 		return
 	}
 
-	if !validation.ValidatePassword(user.Password) {
+	if !middleware.ValidatePassword(user.Password) {
 		logger.Error.Println("Invalid password format")
 		http.Error(w, "Invalid password format", http.StatusBadRequest)
 		return
 	}
 
 	// Validate user input
-	validatorErr := validation.ValidateUser(user)
+	validatorErr := middleware.ValidateUser(user)
 	if validatorErr != nil {
 		logger.Error.Println("Validation error:", validatorErr)
 		http.Error(w, validatorErr.Error(), http.StatusBadRequest)

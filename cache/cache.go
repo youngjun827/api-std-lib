@@ -3,7 +3,7 @@ package cache
 import (
 	"sync"
 
-	"github.com/youngjun827/api-std-lib/models"
+	"github.com/youngjun827/api-std-lib/api/models"
 )
 
 var userCache = make(map[int]models.User)

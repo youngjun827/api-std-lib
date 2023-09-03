@@ -1,4 +1,4 @@
-package validation
+package middleware
 
 import (
 	"errors"
@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"unicode"
 
-	"github.com/youngjun827/api-std-lib/models"
+	"github.com/youngjun827/api-std-lib/api/models"
 )
 
 func ValidateEmail(email string) bool {

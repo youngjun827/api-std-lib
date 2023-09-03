@@ -1,4 +1,4 @@
-package tests
+package handlers
 
 import (
 	"bytes"
@@ -8,7 +8,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/youngjun827/api-std-lib/controllers"
 	"github.com/youngjun827/api-std-lib/db"
 )
 
@@ -35,7 +34,7 @@ func TestUserController(t *testing.T) {
 
 		// Create a custom handler that matches the updated signature
 		customHandler := func(w http.ResponseWriter, r *http.Request) {
-			controllers.CreateUser(w, r, userRepository)
+			CreateUser(w, r, userRepository)
 		}
 
 		handler := http.HandlerFunc(customHandler)
@@ -56,7 +55,7 @@ func TestUserController(t *testing.T) {
 		recorder := httptest.NewRecorder()
 
 		customHandler := func(w http.ResponseWriter, r *http.Request) {
-			controllers.GetUser(w, r, userRepository)
+			GetUser(w, r, userRepository)
 		}
 
 		handler := http.HandlerFunc(customHandler)
@@ -77,7 +76,7 @@ func TestUserController(t *testing.T) {
 		recorder := httptest.NewRecorder()
 
 		customHandler := func(w http.ResponseWriter, r *http.Request) {
-			controllers.ListUsers(w, r, userRepository)
+			ListUsers(w, r, userRepository)
 		}
 
 		handler := http.HandlerFunc(customHandler)
@@ -105,7 +104,7 @@ func TestUserController(t *testing.T) {
 		recorder := httptest.NewRecorder()
 
 		customHandler := func(w http.ResponseWriter, r *http.Request) {
-			controllers.UpdateUser(w, r, userRepository)
+			UpdateUser(w, r, userRepository)
 		}
 
 		handler := http.HandlerFunc(customHandler)
@@ -126,7 +125,7 @@ func TestUserController(t *testing.T) {
 		recorder := httptest.NewRecorder()
 
 		customHandler := func(w http.ResponseWriter, r *http.Request) {
-			controllers.DeleteUser(w, r, userRepository)
+			DeleteUser(w, r, userRepository)
 		}
 
 		handler := http.HandlerFunc(customHandler)
