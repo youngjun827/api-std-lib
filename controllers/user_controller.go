@@ -65,7 +65,6 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(id)
 }
 
-
 func GetUser(w http.ResponseWriter, r *http.Request) {
 	logger.Info.Println("GetUser function started")
 
@@ -107,50 +106,31 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func ListUsers(w http.ResponseWriter, r *http.Request) {
-	logger.Info.Println("ListUsers function started")
+	var users []models.User
 
-	userChannel := make(chan []models.User, 1)
-	errorChannel := make(chan error, 1)
-
-	go func() {
-		logger.Info.Println("Goroutine for fetching users started")
-
-		var users []models.User
-		rows, err := db.DB.Query(`SELECT id, name, email, password FROM users`)
-		if err != nil {
-			logger.Error.Println("Failed to fetch users:", err)
-			errorChannel <- err
-			return
-		}
-		defer rows.Close()
-
-		for rows.Next() {
-			var user models.User
-			if err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.Password); err != nil {
-				logger.Error.Println("Row scanning error:", err)
-				errorChannel <- err
-				return
-			}
-			users = append(users, user)
-		}
-
-		if err := rows.Err(); err != nil {
-			logger.Error.Println("Row error:", err)
-			errorChannel <- err
-			return
-		}
-		userChannel <- users
-	}()
-
-	select {
-	case users := <-userChannel:
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(users)
-	case err := <-errorChannel:
+	rows, err := db.DB.Query(`SELECT id, name, email, password FROM users`)
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var user models.User
+		if err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.Password); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		users = append(users, user)
 	}
 
-	logger.Info.Println("ListUsers function completed")
+	if err := rows.Err(); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(users)
 }
 
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
