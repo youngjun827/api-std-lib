@@ -7,32 +7,35 @@ import (
 	"github.com/youngjun827/api-std-lib/rate"
 )
 
-func SetupRoutes() {
-	http.HandleFunc("/user", func(w http.ResponseWriter, r *http.Request) {
-		rate.RateLimiter(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			switch r.Method {
-			case "GET":
-				controllers.ListUsers(w, r)
-			case "POST":
-				controllers.CreateUser(w, r)
-			default:
-				http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-			}
-		})).ServeHTTP(w, r)
+func SetupRoutes() *http.ServeMux {
+	mux := http.NewServeMux()
+
+	userHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			controllers.ListUsers(w, r)
+		case http.MethodPost:
+			controllers.CreateUser(w, r)
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
 	})
 
-	http.HandleFunc("/user/", func(w http.ResponseWriter, r *http.Request) {
-		rate.RateLimiter(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			switch r.Method {
-			case "GET":
-				controllers.GetUser(w, r)
-			case "PUT":
-				controllers.UpdateUser(w, r)
-			case "DELETE":
-				controllers.DeleteUser(w, r)
-			default:
-				http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-			}
-		})).ServeHTTP(w, r)
+	singleUserHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			controllers.GetUser(w, r)
+		case http.MethodPut:
+			controllers.UpdateUser(w, r)
+		case http.MethodDelete:
+			controllers.DeleteUser(w, r)
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
 	})
+
+	mux.Handle("/user", rate.RateLimiter(userHandler))
+	mux.Handle("/user/", rate.RateLimiter(singleUserHandler))
+
+	return mux
 }

@@ -19,12 +19,13 @@ func main() {
 	logger.InitLogger()
 	db.InitDB()
 
-	routes.SetupRoutes()
+	mux := routes.SetupRoutes()
 
 	fmt.Println("Server is running on port 8080...")
 
 	srv := &http.Server{
 		Addr:         ":8080",
+		Handler:      mux,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  15 * time.Second,
