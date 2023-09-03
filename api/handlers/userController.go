@@ -22,8 +22,6 @@ func init() {
 }
 
 func CreateUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRepository) {
-	logger.Info.Println("CreateUser function started")
-
 	var user models.User
 	decoder := json.NewDecoder(r.Body)
 
@@ -33,7 +31,6 @@ func CreateUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRe
 		return
 	}
 
-	// Validate email and password in addition to user
 	if !middleware.ValidateEmail(user.Email) {
 		logger.Error.Println("Invalid email format")
 		http.Error(w, "Invalid email format", http.StatusBadRequest)
@@ -67,8 +64,6 @@ func CreateUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRe
 }
 
 func GetUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRepository) {
-	logger.Info.Println("GetUser function started")
-
 	idParam := strings.TrimPrefix(r.URL.Path, "/user/")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
@@ -76,7 +71,6 @@ func GetUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRepos
 		return
 	}
 
-	// Try to fetch user from cache first
 	if user, found := cache.GetUserFromCache(id); found {
 		logger.Info.Println("Cache hit")
 		json.NewEncoder(w).Encode(user)
@@ -114,8 +108,6 @@ func ListUsers(w http.ResponseWriter, r *http.Request, userRepository db.UserRep
 }
 
 func UpdateUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRepository) {
-	logger.Info.Println("UpdateUser function started")
-
 	idParam := strings.TrimPrefix(r.URL.Path, "/user/")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
@@ -166,14 +158,12 @@ func UpdateUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRe
 
 	w.WriteHeader(http.StatusNoContent)
 
-	// Update the cache
 	cache.SetUserToCache(id, user)
 
 	w.WriteHeader(http.StatusNoContent)
 }
 
 func DeleteUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRepository) {
-	logger.Info.Println("DeleteUser function started")
 	idParam := strings.TrimPrefix(r.URL.Path, "/user/")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
