@@ -2,4 +2,4 @@ test:
 	go test ./tests
 
 format:
-	gofmt -w .
+	gofmt -s -w .
