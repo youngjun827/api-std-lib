@@ -16,6 +16,8 @@ func TestUserController(t *testing.T) {
 	db.InitDB()
 	resetDB()
 
+	userRepository := db.NewUserRepositorySQL(db.DB)
+
 	t.Run("Create user", func(t *testing.T) {
 		user := map[string]interface{}{
 			"name":     "John",
@@ -30,7 +32,14 @@ func TestUserController(t *testing.T) {
 		}
 
 		recorder := httptest.NewRecorder()
-		handler := http.HandlerFunc(controllers.CreateUser)
+
+		// Create a custom handler that matches the updated signature
+		customHandler := func(w http.ResponseWriter, r *http.Request) {
+			controllers.CreateUser(w, r, userRepository)
+		}
+
+		handler := http.HandlerFunc(customHandler)
+
 		handler.ServeHTTP(recorder, req)
 
 		if status := recorder.Code; status != http.StatusCreated {
@@ -45,7 +54,13 @@ func TestUserController(t *testing.T) {
 		}
 
 		recorder := httptest.NewRecorder()
-		handler := http.HandlerFunc(controllers.GetUser)
+
+		customHandler := func(w http.ResponseWriter, r *http.Request) {
+			controllers.GetUser(w, r, userRepository)
+		}
+
+		handler := http.HandlerFunc(customHandler)
+
 		handler.ServeHTTP(recorder, req)
 
 		if status := recorder.Code; status != http.StatusOK {
@@ -60,7 +75,13 @@ func TestUserController(t *testing.T) {
 		}
 
 		recorder := httptest.NewRecorder()
-		handler := http.HandlerFunc(controllers.ListUsers)
+
+		customHandler := func(w http.ResponseWriter, r *http.Request) {
+			controllers.ListUsers(w, r, userRepository)
+		}
+
+		handler := http.HandlerFunc(customHandler)
+
 		handler.ServeHTTP(recorder, req)
 
 		if status := recorder.Code; status != http.StatusOK {
@@ -82,7 +103,13 @@ func TestUserController(t *testing.T) {
 		}
 
 		recorder := httptest.NewRecorder()
-		handler := http.HandlerFunc(controllers.UpdateUser)
+
+		customHandler := func(w http.ResponseWriter, r *http.Request) {
+			controllers.UpdateUser(w, r, userRepository)
+		}
+
+		handler := http.HandlerFunc(customHandler)
+
 		handler.ServeHTTP(recorder, req)
 
 		if status := recorder.Code; status != http.StatusNoContent {
@@ -97,7 +124,13 @@ func TestUserController(t *testing.T) {
 		}
 
 		recorder := httptest.NewRecorder()
-		handler := http.HandlerFunc(controllers.DeleteUser)
+
+		customHandler := func(w http.ResponseWriter, r *http.Request) {
+			controllers.DeleteUser(w, r, userRepository)
+		}
+
+		handler := http.HandlerFunc(customHandler)
+
 		handler.ServeHTTP(recorder, req)
 
 		if status := recorder.Code; status != http.StatusNoContent {

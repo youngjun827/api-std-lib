@@ -14,11 +14,14 @@ import (
 	"github.com/youngjun827/api-std-lib/validation"
 )
 
+var userRepository db.UserRepository
+
 func init() {
 	logger.InitLogger()
+	userRepository = db.NewUserRepositorySQL(db.DB)
 }
 
-func CreateUser(w http.ResponseWriter, r *http.Request) {
+func CreateUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRepository) {
 	logger.Info.Println("CreateUser function started")
 
 	var user models.User
@@ -52,9 +55,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 
-	sqlStatement := `INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id`
-	id := 0
-	err := db.DB.QueryRow(sqlStatement, user.Name, user.Email, user.Password).Scan(&id)
+	id, err := userRepository.CreateUser(user)
 	if err != nil {
 		logger.Error.Println("Failed to create user:", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -65,7 +66,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(id)
 }
 
-func GetUser(w http.ResponseWriter, r *http.Request) {
+func GetUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRepository) {
 	logger.Info.Println("GetUser function started")
 
 	idParam := strings.TrimPrefix(r.URL.Path, "/user/")
@@ -82,11 +83,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user models.User
-	sqlStatement := `SELECT id, name, email, password FROM users WHERE id=$1`
-	row := db.DB.QueryRow(sqlStatement, id)
-
-	err = row.Scan(&user.ID, &user.Name, &user.Email, &user.Password)
+	user, err := userRepository.GetUserByID(id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			logger.Error.Println("User not found:", err)
@@ -105,26 +102,9 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(user)
 }
 
-func ListUsers(w http.ResponseWriter, r *http.Request) {
-	var users []models.User
-
-	rows, err := db.DB.Query(`SELECT id, name, email, password FROM users`)
+func ListUsers(w http.ResponseWriter, r *http.Request, userRepository db.UserRepository) {
+	users, err := userRepository.ListUsers()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var user models.User
-		if err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.Password); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		users = append(users, user)
-	}
-
-	if err := rows.Err(); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -133,7 +113,7 @@ func ListUsers(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(users)
 }
 
-func UpdateUser(w http.ResponseWriter, r *http.Request) {
+func UpdateUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRepository) {
 	logger.Info.Println("UpdateUser function started")
 
 	idParam := strings.TrimPrefix(r.URL.Path, "/user/")
@@ -175,13 +155,13 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 
-	sqlStatement := `UPDATE users SET name=$1, email=$2, password=$3 WHERE id=$4`
-	_, err = db.DB.Exec(sqlStatement, user.Name, user.Email, user.Password, id)
+	err = userRepository.UpdateUser(id, user)
 	if err != nil {
 		logger.Error.Println("Failed to update user:", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
 	logger.Info.Printf("User updated with ID: %d", id)
 
 	w.WriteHeader(http.StatusNoContent)
@@ -192,7 +172,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func DeleteUser(w http.ResponseWriter, r *http.Request) {
+func DeleteUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRepository) {
 	logger.Info.Println("DeleteUser function started")
 	idParam := strings.TrimPrefix(r.URL.Path, "/user/")
 	id, err := strconv.Atoi(idParam)
@@ -202,15 +182,14 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sqlStatement := `DELETE FROM users WHERE id=$1`
-	_, err = db.DB.Exec(sqlStatement, id)
+	err = userRepository.DeleteUser(id)
 	if err != nil {
 		logger.Error.Println("Failed to delete user:", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	logger.Info.Printf("User deleted with ID: %d", id)
+	logger.Info.Printf("User deleted with ID: %d")
 
 	cache.DeleteUserFromCache(id)
 

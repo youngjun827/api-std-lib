@@ -17,9 +17,14 @@ import (
 
 func main() {
 	logger.InitLogger()
+
+	// Initialize the database
 	db.InitDB()
 
-	mux := routes.SetupRoutes()
+	// Initialize the UserRepository with the SQL implementation
+	userRepository := db.NewUserRepositorySQL(db.DB)
+
+	mux := routes.SetupRoutes(userRepository) // Pass userRepository to the routes setup function
 
 	fmt.Println("Server is running on port 8080...")
 
