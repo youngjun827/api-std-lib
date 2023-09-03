@@ -10,7 +10,30 @@ var (
 	rateLimitingWindow = 1 * time.Minute
 	requestLimit       = 10
 	requests           = sync.Map{}
+	cleanupInterval    = 5 * time.Minute
 )
+
+func init() {
+	go periodicCleanup()
+}
+
+func periodicCleanup() {
+	ticker := time.NewTicker(cleanupInterval)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		requests.Range(func(key, value interface{}) bool {
+			clientIP := key.(string)
+			count := value.(int)
+
+			if count == 0 {
+				requests.Delete(clientIP)
+			}
+
+			return true
+		})
+	}
+}
 
 func RateLimiter(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -25,12 +48,6 @@ func RateLimiter(next http.Handler) http.Handler {
 		}
 
 		requests.Store(clientIP, requestCount+1)
-
-		go func(clientIP string) {
-			time.Sleep(rateLimitingWindow)
-
-			requests.LoadAndDelete(clientIP)
-		}(clientIP)
 
 		next.ServeHTTP(w, r)
 	})
