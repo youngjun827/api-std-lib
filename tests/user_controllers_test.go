@@ -23,16 +23,16 @@ func TestUserController(t *testing.T) {
 			"password": "Uppercasea005500",
 		}
 		userJSON, _ := json.Marshal(user)
-	
+
 		req, err := http.NewRequest("POST", "/user", bytes.NewBuffer(userJSON))
 		if err != nil {
 			t.Fatalf("Could not create request: %v", err)
 		}
-	
+
 		recorder := httptest.NewRecorder()
 		handler := http.HandlerFunc(controllers.CreateUser)
 		handler.ServeHTTP(recorder, req)
-	
+
 		if status := recorder.Code; status != http.StatusCreated {
 			t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusCreated)
 		}

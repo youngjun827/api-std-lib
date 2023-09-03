@@ -29,10 +29,9 @@ func InitDB() {
 	}
 
 	// Set connection pool parameters
-	DB.SetMaxOpenConns(10)             
-	DB.SetMaxIdleConns(5)            
-	DB.SetConnMaxLifetime(time.Minute) 
-	
+	DB.SetMaxOpenConns(10)
+	DB.SetMaxIdleConns(5)
+	DB.SetConnMaxLifetime(time.Minute)
 
 	err = DB.Ping()
 	if err != nil {

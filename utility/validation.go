@@ -18,7 +18,7 @@ func ValidateEmail(email string) bool {
 func ValidatePassword(password string) bool {
 	var (
 		hasUpper, hasLower, hasDigit bool
-		length                        int
+		length                       int
 	)
 	for _, char := range password {
 		switch {

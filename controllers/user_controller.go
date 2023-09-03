@@ -3,7 +3,6 @@ package controllers
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -63,7 +62,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	  // Try to fetch user from cache first
+	// Try to fetch user from cache first
 	if user, found := cache.GetUserFromCache(id); found {
 		logger.Info.Println("Cache hit")
 		json.NewEncoder(w).Encode(user)
@@ -77,6 +76,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	err = row.Scan(&user.ID, &user.Name, &user.Email, &user.Password)
 	if err != nil {
 		if err == sql.ErrNoRows {
+			logger.Error.Println("User not found:", err)
 			http.Error(w, "User not found", http.StatusNotFound)
 			return
 		}
@@ -95,48 +95,49 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 func ListUsers(w http.ResponseWriter, r *http.Request) {
 	logger.Info.Println("ListUsers function started")
 
-    userChannel := make(chan []models.User, 1)
-    errorChannel := make(chan error, 1)
+	userChannel := make(chan []models.User, 1)
+	errorChannel := make(chan error, 1)
 
-    go func() {
-        fmt.Println("Goroutine for fetching users started")
+	go func() {
+		logger.Info.Println("Goroutine for fetching users started")
 
-        var users []models.User
-        rows, err := db.DB.Query(`SELECT id, name, email, password FROM users`)
-        if err != nil {
-            errorChannel <- err
-            return
-        }
-        defer rows.Close()
+		var users []models.User
+		rows, err := db.DB.Query(`SELECT id, name, email, password FROM users`)
+		if err != nil {
+			logger.Error.Println("Failed to fetch users:", err)
+			errorChannel <- err
+			return
+		}
+		defer rows.Close()
 
-        for rows.Next() {
-            var user models.User
-            if err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.Password); err != nil {
-                errorChannel <- err
-                return
-            }
-            users = append(users, user)
-        }
+		for rows.Next() {
+			var user models.User
+			if err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.Password); err != nil {
+				logger.Error.Println("Row scanning error:", err)
+				errorChannel <- err
+				return
+			}
+			users = append(users, user)
+		}
 
-        if err := rows.Err(); err != nil {
-            fmt.Println("Row error:", err)
-            errorChannel <- err
-            return
-        }
-        userChannel <- users
-    }()
+		if err := rows.Err(); err != nil {
+			logger.Error.Println("Row error:", err)
+			errorChannel <- err
+			return
+		}
+		userChannel <- users
+	}()
 
-    select {
-    case users := <-userChannel:
-        w.Header().Set("Content-Type", "application/json")
-        json.NewEncoder(w).Encode(users)
-    case err := <-errorChannel:
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-    }
+	select {
+	case users := <-userChannel:
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(users)
+	case err := <-errorChannel:
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 
 	logger.Info.Println("ListUsers function completed")
 }
-
 
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	logger.Info.Println("UpdateUser function started")
@@ -144,6 +145,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	idParam := strings.TrimPrefix(r.URL.Path, "/user/")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
+		logger.Error.Println("Invalid user ID:", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -151,15 +153,17 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&user); err != nil {
+		logger.Error.Println("Failed to decode request body:", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	validator_err := utility.ValidateUser(user)
-    if validator_err != nil {
-        http.Error(w, validator_err.Error(), http.StatusBadRequest)
-        return
-    }
+	validatorErr := utility.ValidateUser(user)
+	if validatorErr != nil {
+		logger.Error.Println("Validation error:", validatorErr)
+		http.Error(w, validatorErr.Error(), http.StatusBadRequest)
+		return
+	}
 
 	defer r.Body.Close()
 
@@ -185,6 +189,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	idParam := strings.TrimPrefix(r.URL.Path, "/user/")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
+		logger.Error.Println("Invalid user ID:", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -201,5 +206,5 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	cache.DeleteUserFromCache(id)
 
-    w.WriteHeader(http.StatusNoContent)
+	w.WriteHeader(http.StatusNoContent)
 }
