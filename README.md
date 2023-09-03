@@ -27,6 +27,7 @@ This project is a RESTful API built with Go, utilizing only its standard library
 - Data validation
 - Error handling
 - Asynchronous data processing
+- Custom .env Variable Loader (Why bother using `godotenv` package?)
 
 ## Requirements
 
