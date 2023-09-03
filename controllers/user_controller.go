@@ -11,7 +11,7 @@ import (
 	"github.com/youngjun827/api-std-lib/db"
 	"github.com/youngjun827/api-std-lib/logger"
 	"github.com/youngjun827/api-std-lib/models"
-	"github.com/youngjun827/api-std-lib/utility"
+	"github.com/youngjun827/api-std-lib/validation"
 )
 
 func init() {
@@ -30,7 +30,20 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	validatorErr := utility.ValidateUser(user)
+	// Validate email and password in addition to user
+	if !validation.ValidateEmail(user.Email) {
+		logger.Error.Println("Invalid email format")
+		http.Error(w, "Invalid email format", http.StatusBadRequest)
+		return
+	}
+
+	if !validation.ValidatePassword(user.Password) {
+		logger.Error.Println("Invalid password format")
+		http.Error(w, "Invalid password format", http.StatusBadRequest)
+		return
+	}
+
+	validatorErr := validation.ValidateUser(user)
 	if validatorErr != nil {
 		logger.Error.Println("Validation error:", validatorErr)
 		http.Error(w, validatorErr.Error(), http.StatusBadRequest)
@@ -51,6 +64,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(id)
 }
+
 
 func GetUser(w http.ResponseWriter, r *http.Request) {
 	logger.Info.Println("GetUser function started")
@@ -158,7 +172,21 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	validatorErr := utility.ValidateUser(user)
+	// Validate email and password in addition to user
+	if !validation.ValidateEmail(user.Email) {
+		logger.Error.Println("Invalid email format")
+		http.Error(w, "Invalid email format", http.StatusBadRequest)
+		return
+	}
+
+	if !validation.ValidatePassword(user.Password) {
+		logger.Error.Println("Invalid password format")
+		http.Error(w, "Invalid password format", http.StatusBadRequest)
+		return
+	}
+
+	// Validate user input
+	validatorErr := validation.ValidateUser(user)
 	if validatorErr != nil {
 		logger.Error.Println("Validation error:", validatorErr)
 		http.Error(w, validatorErr.Error(), http.StatusBadRequest)
