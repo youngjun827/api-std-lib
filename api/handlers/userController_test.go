@@ -8,14 +8,31 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/youngjun827/api-std-lib/api/models"
 	"github.com/youngjun827/api-std-lib/db"
 )
 
 func TestUserController(t *testing.T) {
-	db.InitDB()
-	resetDB()
-
-	userRepository := db.NewUserRepositorySQL(db.DB)
+	userRepository := &db.UserRepositoryMock{
+		MockCreateUser: func(user models.User) (int, error) {
+			return 1, nil
+		},
+		MockGetUserByID: func(id int) (models.User, error) {
+			return models.User{ID: id, Name: "John", Email: "john@example.com", Password: "Uppercasea005500"}, nil
+		},
+		MockListUsers: func() ([]models.User, error) {
+			users := []models.User{
+				{ID: 1, Name: "John", Email: "john@example.com", Password: "Uppercasea005500"},
+			}
+			return users, nil
+		},
+		MockUpdateUser: func(id int, user models.User) error {
+			return nil
+		},
+		MockDeleteUser: func(id int) error {
+			return nil
+		},
+	}
 
 	t.Run("Create user", func(t *testing.T) {
 		user := map[string]interface{}{

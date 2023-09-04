@@ -21,20 +21,20 @@ func init() {
 }
 
 func CreateUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRepository) {
-    var user models.User
-    decoder := json.NewDecoder(r.Body)
+	var user models.User
+	decoder := json.NewDecoder(r.Body)
 
-    if err := decoder.Decode(&user); err != nil {
-        logger.Error.Println("Failed to decode request body:", err)
-        http.Error(w, err.Error(), http.StatusBadRequest)
-        return
-    }
+	if err := decoder.Decode(&user); err != nil {
+		logger.Error.Println("Failed to decode request body:", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
-    if err := user.Validate(); err != nil {
-        logger.Error.Println("Validation error:", err)
-        http.Error(w, err.Error(), http.StatusBadRequest)
-        return
-    }
+	if err := user.Validate(); err != nil {
+		logger.Error.Println("Validation error:", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	defer r.Body.Close()
 
@@ -102,19 +102,19 @@ func UpdateUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRe
 		return
 	}
 
-    var user models.User
-    decoder := json.NewDecoder(r.Body)
-    if err := decoder.Decode(&user); err != nil {
-        logger.Error.Println("Failed to decode request body:", err)
-        http.Error(w, err.Error(), http.StatusBadRequest)
-        return
-    }
+	var user models.User
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&user); err != nil {
+		logger.Error.Println("Failed to decode request body:", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
-    if err := user.Validate(); err != nil {
-        logger.Error.Println("Validation error:", err)
-        http.Error(w, err.Error(), http.StatusBadRequest)
-        return
-    }
+	if err := user.Validate(); err != nil {
+		logger.Error.Println("Validation error:", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	defer r.Body.Close()
 
