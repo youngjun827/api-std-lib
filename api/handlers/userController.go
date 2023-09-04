@@ -11,7 +11,6 @@ import (
 	"github.com/youngjun827/api-std-lib/cache"
 	"github.com/youngjun827/api-std-lib/db"
 	"github.com/youngjun827/api-std-lib/logger"
-	"github.com/youngjun827/api-std-lib/middleware"
 )
 
 var userRepository db.UserRepository
@@ -22,33 +21,20 @@ func init() {
 }
 
 func CreateUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRepository) {
-	var user models.User
-	decoder := json.NewDecoder(r.Body)
+    var user models.User
+    decoder := json.NewDecoder(r.Body)
 
-	if err := decoder.Decode(&user); err != nil {
-		logger.Error.Println("Failed to decode request body:", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
+    if err := decoder.Decode(&user); err != nil {
+        logger.Error.Println("Failed to decode request body:", err)
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
 
-	if !middleware.ValidateEmail(user.Email) {
-		logger.Error.Println("Invalid email format")
-		http.Error(w, "Invalid email format", http.StatusBadRequest)
-		return
-	}
-
-	if !middleware.ValidatePassword(user.Password) {
-		logger.Error.Println("Invalid password format")
-		http.Error(w, "Invalid password format", http.StatusBadRequest)
-		return
-	}
-
-	validatorErr := middleware.ValidateUser(user)
-	if validatorErr != nil {
-		logger.Error.Println("Validation error:", validatorErr)
-		http.Error(w, validatorErr.Error(), http.StatusBadRequest)
-		return
-	}
+    if err := user.Validate(); err != nil {
+        logger.Error.Println("Validation error:", err)
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
 
 	defer r.Body.Close()
 
@@ -116,34 +102,19 @@ func UpdateUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRe
 		return
 	}
 
-	var user models.User
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&user); err != nil {
-		logger.Error.Println("Failed to decode request body:", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
+    var user models.User
+    decoder := json.NewDecoder(r.Body)
+    if err := decoder.Decode(&user); err != nil {
+        logger.Error.Println("Failed to decode request body:", err)
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
 
-	// Validate email and password in addition to user
-	if !middleware.ValidateEmail(user.Email) {
-		logger.Error.Println("Invalid email format")
-		http.Error(w, "Invalid email format", http.StatusBadRequest)
-		return
-	}
-
-	if !middleware.ValidatePassword(user.Password) {
-		logger.Error.Println("Invalid password format")
-		http.Error(w, "Invalid password format", http.StatusBadRequest)
-		return
-	}
-
-	// Validate user input
-	validatorErr := middleware.ValidateUser(user)
-	if validatorErr != nil {
-		logger.Error.Println("Validation error:", validatorErr)
-		http.Error(w, validatorErr.Error(), http.StatusBadRequest)
-		return
-	}
+    if err := user.Validate(); err != nil {
+        logger.Error.Println("Validation error:", err)
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
 
 	defer r.Body.Close()
 
@@ -179,7 +150,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRe
 		return
 	}
 
-	logger.Info.Printf("User deleted with ID: %d")
+	logger.Info.Printf("User deleted with ID: %d", id)
 
 	cache.DeleteUserFromCache(id)
 
