@@ -12,14 +12,11 @@ import (
 	"time"
 
 	"github.com/youngjun827/api-std-lib/db"
-	"github.com/youngjun827/api-std-lib/logger"
 	"github.com/youngjun827/api-std-lib/routes"
 )
 
 func main() {
 	runtime.GOMAXPROCS(1)
-
-	logger.InitLogger()
 
 	db.InitDB()
 
