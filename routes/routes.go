@@ -11,19 +11,19 @@ import (
 func SetupRoutes(userRepository db.UserRepository) *http.ServeMux {
 	mux := http.NewServeMux()
 
-	userHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	usersHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
 			handlers.ListUsers(w, r, userRepository)
-		case http.MethodPost:
-			handlers.CreateUser(w, r, userRepository)
 		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
 	})
 
-	singleUserHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	userHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
+		case http.MethodPost:
+			handlers.CreateUser(w, r, userRepository)
 		case http.MethodGet:
 			handlers.GetUser(w, r, userRepository)
 		case http.MethodPut:
@@ -35,8 +35,8 @@ func SetupRoutes(userRepository db.UserRepository) *http.ServeMux {
 		}
 	})
 
-	mux.Handle("/user", middleware.RateLimiter(userHandler))
-	mux.Handle("/user/", middleware.RateLimiter(singleUserHandler))
+	mux.Handle("/user/", middleware.RateLimiter(userHandler))
+	mux.Handle("/users", middleware.RateLimiter(usersHandler))
 
 	return mux
 }
