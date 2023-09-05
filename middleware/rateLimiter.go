@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
 	"sync"
 	"time"
@@ -41,6 +42,9 @@ func RateLimiter(next http.Handler) http.Handler {
 
 		count, _ := requests.LoadOrStore(clientIP, 0)
 		requestCount := count.(int)
+
+		// Debug Print
+		fmt.Printf("ClientIP: %s, Count: %d\n", clientIP, requestCount)
 
 		if requestCount >= requestLimit {
 			http.Error(w, "Rate limit exceeded", http.StatusTooManyRequests)
