@@ -10,6 +10,7 @@ import (
 	"github.com/youngjun827/api-std-lib/api/models"
 	"github.com/youngjun827/api-std-lib/cache"
 	"github.com/youngjun827/api-std-lib/db"
+	"github.com/youngjun827/api-std-lib/middleware"
 )
 
 var userRepository db.UserRepository
@@ -27,7 +28,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRe
 		return
 	}
 
-	if err := user.Validate(); err != nil {
+	if err := middleware.ValidateUser(user); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -99,7 +100,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRe
 		return
 	}
 
-	if err := user.Validate(); err != nil {
+	if err := middleware.ValidateUser(user); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
