@@ -89,22 +89,22 @@ func TestUserController(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Could not create request: %v", err)
 		}
-	
+
 		recorder := httptest.NewRecorder()
-	
+
 		customHandler := func(w http.ResponseWriter, r *http.Request) {
 			ListUsers(w, r, userRepository)
 		}
-	
+
 		handler := http.HandlerFunc(customHandler)
-	
+
 		handler.ServeHTTP(recorder, req)
-	
+
 		if status := recorder.Code; status != http.StatusOK {
 			t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusOK)
 		}
 	})
-	
+
 	t.Run("Update user", func(t *testing.T) {
 		user := map[string]interface{}{
 			"name":     "John Updated",
@@ -112,43 +112,43 @@ func TestUserController(t *testing.T) {
 			"password": "UpdatedUppercasea005500",
 		}
 		userJSON, _ := json.Marshal(user)
-	
+
 		req, err := http.NewRequest("PUT", "/user/1", bytes.NewBuffer(userJSON))
 		if err != nil {
 			t.Fatalf("Could not create request: %v", err)
 		}
-	
+
 		recorder := httptest.NewRecorder()
-	
+
 		customHandler := func(w http.ResponseWriter, r *http.Request) {
 			UpdateUser(w, r, userRepository)
 		}
-	
+
 		handler := http.HandlerFunc(customHandler)
-	
+
 		handler.ServeHTTP(recorder, req)
-	
+
 		if status := recorder.Code; status != http.StatusNoContent {
 			t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusNoContent)
 		}
 	})
-	
+
 	t.Run("Delete user", func(t *testing.T) {
 		req, err := http.NewRequest("DELETE", "/user/1", nil)
 		if err != nil {
 			t.Fatalf("Could not create request: %v", err)
 		}
-	
+
 		recorder := httptest.NewRecorder()
-	
+
 		customHandler := func(w http.ResponseWriter, r *http.Request) {
 			DeleteUser(w, r, userRepository)
 		}
-	
+
 		handler := http.HandlerFunc(customHandler)
-	
+
 		handler.ServeHTTP(recorder, req)
-	
+
 		if status := recorder.Code; status != http.StatusNoContent {
 			t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusNoContent)
 		}

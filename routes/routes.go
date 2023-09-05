@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/youngjun827/api-std-lib/api/handlers"
@@ -16,7 +17,7 @@ func SetupRoutes(userRepository db.UserRepository) *http.ServeMux {
 		case http.MethodGet:
 			handlers.ListUsers(w, r, userRepository)
 		default:
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			middleware.JSONError(w, fmt.Errorf("Method not allowed"), http.StatusMethodNotAllowed)
 		}
 	})
 
@@ -31,7 +32,7 @@ func SetupRoutes(userRepository db.UserRepository) *http.ServeMux {
 		case http.MethodDelete:
 			handlers.DeleteUser(w, r, userRepository)
 		default:
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			middleware.JSONError(w, fmt.Errorf("Method not allowed"), http.StatusMethodNotAllowed)
 		}
 	})
 

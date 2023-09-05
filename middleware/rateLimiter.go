@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"sync"
@@ -48,27 +48,13 @@ func RateLimiter(next http.Handler) http.Handler {
 		slog.Info("Rate limiting request: clientIP=%s, requestCount=%d", clientIP, requestCount)
 
 		if requestCount >= requestLimit {
-			// Return JSON error
-			jsonErr := map[string]string{
-				"error": "Rate limit exceeded",
-			}
-			jsonBytes, err := json.Marshal(jsonErr)
-			if err != nil {
-				slog.Error("Failed to marshal JSON error: %v", err)
-				http.Error(w, "Internal server error", http.StatusInternalServerError)
-				return
-			}
-
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusTooManyRequests)
-			w.Write(jsonBytes)
+			err := fmt.Errorf("Rate limit exceeded for client IP: %s", clientIP)
+			JSONError(w, err, 429)
 			return
 		}
 
-		// Store request
 		requests.Store(clientIP, requestCount+1)
 
-		// Serve next handler
 		next.ServeHTTP(w, r)
 	})
 }
