@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/youngjun827/api-std-lib/api/models"
-	"github.com/youngjun827/api-std-lib/cache"
 	"github.com/youngjun827/api-std-lib/db"
 	"github.com/youngjun827/api-std-lib/middleware"
 )
@@ -53,11 +52,6 @@ func GetUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRepos
 		return
 	}
 
-	if user, found := cache.GetUserFromCache(id); found {
-		json.NewEncoder(w).Encode(user)
-		return
-	}
-
 	user, err := userRepository.GetUserByID(id)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -67,8 +61,6 @@ func GetUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRepos
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	cache.SetUserToCache(id, user)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(user)
@@ -115,8 +107,6 @@ func UpdateUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRe
 
 	w.WriteHeader(http.StatusNoContent)
 
-	cache.SetUserToCache(id, user)
-
 	w.WriteHeader(http.StatusNoContent)
 }
 
@@ -133,8 +123,6 @@ func DeleteUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRe
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	cache.DeleteUserFromCache(id)
 
 	w.WriteHeader(http.StatusNoContent)
 }
