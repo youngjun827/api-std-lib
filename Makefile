@@ -1,5 +1,5 @@
 test:
-	go test ./tests
+	go test ./...
 
 format:
 	gofmt -s -w .

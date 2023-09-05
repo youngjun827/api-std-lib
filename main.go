@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -34,23 +34,27 @@ func main() {
 		IdleTimeout:  15 * time.Second,
 	}
 
+	slog.NewLogLogger(slog.Default().Handler(), slog.LevelInfo)
+
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Could not start server: %v", err)
+			slog.Error("Could not start server: %v", err)
+			os.Exit(1)
 		}
 	}()
 
 	<-done
-	log.Println("Server Stopped")
+	slog.Info("Server Stopped")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatalf("Server Shutdown Failed: %v", err)
+		slog.Error("Server Shutdown Failed: %v", err)
+		os.Exit(1)
 	}
-	log.Println("Server Exited Properly")
+	slog.Info("Server Exited Properly")
 }

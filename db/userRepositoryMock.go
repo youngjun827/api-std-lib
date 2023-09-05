@@ -1,8 +1,11 @@
 package db
 
 import (
+	"encoding/json"
 	"errors"
 	"sync"
+
+	"log/slog"
 
 	"github.com/youngjun827/api-std-lib/api/models"
 )
@@ -91,4 +94,20 @@ func (m *UserRepositoryMock) DeleteUser(id int) error {
 	}
 	delete(m.data, id)
 	return nil
+}
+
+func (m *UserRepositoryMock) logError(err error) {
+	slog.Error("Error in UserRepositoryMock: %v", err)
+}
+
+func (m *UserRepositoryMock) returnJSONError(err error) error {
+	slog.Error("Error in UserRepositoryMock: %v", err)
+	jsonErr := map[string]string{
+		"error": err.Error(),
+	}
+	jsonBytes, err := json.Marshal(jsonErr)
+	if err != nil {
+		return err
+	}
+	return errors.New(string(jsonBytes))
 }

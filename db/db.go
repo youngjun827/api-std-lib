@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"database/sql"
 	"fmt"
-	"log"
+	"log/slog"
 	"os"
 	"strings"
 	"time"
@@ -17,7 +17,7 @@ var DB *sql.DB
 func InitDB() {
 	errEnv := loadEnvVariables()
 	if errEnv != nil {
-		log.Fatalf("Error loading .env file: %v", errEnv)
+		slog.Error("Error loading .env file")
 	}
 
 	host := os.Getenv("DB_HOST")
@@ -31,7 +31,7 @@ func InitDB() {
 	var err error
 	DB, err = sql.Open("postgres", connStr)
 	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
+		slog.Error("Failed to connect to database")
 	}
 
 	// Set connection pool parameters
@@ -41,7 +41,7 @@ func InitDB() {
 
 	err = DB.Ping()
 	if err != nil {
-		log.Fatalf("Failed to ping database: %v", err)
+		slog.Error("Failed to ping database")
 	}
 
 	fmt.Println("Successfully connected to the database.")

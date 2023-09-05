@@ -3,6 +3,7 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"strings"
@@ -23,11 +24,13 @@ func CreateUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRe
 	decoder := json.NewDecoder(r.Body)
 
 	if err := decoder.Decode(&user); err != nil {
+		slog.Error("Failed to decode user credentials: %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	if err := middleware.ValidateUser(user); err != nil {
+		slog.Error("Failed to validate user password: %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -36,6 +39,12 @@ func CreateUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRe
 
 	id, err := userRepository.CreateUser(user)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			slog.Error("Failed to create user: user already exists")
+			http.Error(w, "User already exists", http.StatusBadRequest)
+			return
+		}
+		slog.Error("Failed to create user: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -48,6 +57,7 @@ func GetUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRepos
 	idParam := strings.TrimPrefix(r.URL.Path, "/user/")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
+		slog.Error("Failed to parse user ID: %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -55,9 +65,12 @@ func GetUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRepos
 	user, err := userRepository.GetUserByID(id)
 	if err != nil {
 		if err == sql.ErrNoRows {
+			// [Image of User not found icon]
+			slog.Error("Failed to get user with the ID. User not found")
 			http.Error(w, "User not found", http.StatusNotFound)
 			return
 		}
+		slog.Error("Failed to get user with ID")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -69,6 +82,12 @@ func GetUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRepos
 func ListUsers(w http.ResponseWriter, r *http.Request, userRepository db.UserRepository) {
 	users, err := userRepository.ListUsers()
 	if err != nil {
+		if err == sql.ErrNoRows {
+			slog.Error("Failed to list users: no users found")
+			http.Error(w, "No users found", http.StatusNotFound)
+			return
+		}
+		slog.Error("Failed to list users: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -77,10 +96,12 @@ func ListUsers(w http.ResponseWriter, r *http.Request, userRepository db.UserRep
 	json.NewEncoder(w).Encode(users)
 }
 
+
 func UpdateUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRepository) {
 	idParam := strings.TrimPrefix(r.URL.Path, "/user/")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
+		slog.Error("Failed to parse user ID: %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -88,11 +109,13 @@ func UpdateUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRe
 	var user models.User
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&user); err != nil {
+		slog.Error("Failed to decode user data: %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	if err := middleware.ValidateUser(user); err != nil {
+		slog.Error("Invalid user credentials: %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -101,25 +124,37 @@ func UpdateUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRe
 
 	err = userRepository.UpdateUser(id, user)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			slog.Error("Failed to update user with ID. User not found")
+			http.Error(w, "User not found", http.StatusNotFound)
+			return
+		}
+		slog.Error("Failed to update user with ID")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusNoContent)
-
-	w.WriteHeader(http.StatusNoContent)
 }
+
 
 func DeleteUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRepository) {
 	idParam := strings.TrimPrefix(r.URL.Path, "/user/")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
+		slog.Error("Failed to parse user ID")
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	err = userRepository.DeleteUser(id)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			slog.Error("User with the ID does not exist")
+			http.Error(w, "User not found", http.StatusNotFound)
+			return
+		}
+		slog.Error("Failed to delete user with ID")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
