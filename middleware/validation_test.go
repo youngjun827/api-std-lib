@@ -31,7 +31,7 @@ func TestValidateEmail(t *testing.T) {
 func TestValidatePassword(t *testing.T) {
 	tests := []struct {
 		password string
-		valid bool
+		valid    bool
 	}{
 		{password: "Password123", valid: true},
 		{password: "Password123", valid: true},

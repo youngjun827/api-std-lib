@@ -20,8 +20,8 @@ type UserRepositoryMock struct {
 
 func NewUserRepositoryMock() *UserRepositoryMock {
 	return &UserRepositoryMock{
-		data:  make(map[int]models.User),
-		mutex: &sync.Mutex{},
+		data:   make(map[int]models.User),
+		mutex:  &sync.Mutex{},
 		lastID: 0,
 	}
 }

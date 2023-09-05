@@ -8,7 +8,7 @@ import (
 )
 
 func TestRateLimiter(t *testing.T) {
-	requestLimit = 2 
+	requestLimit = 2
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("OK"))
@@ -35,13 +35,13 @@ func TestRateLimiter(t *testing.T) {
 		rr := httptest.NewRecorder()
 		req, _ := http.NewRequest("GET", "/", nil)
 		req.RemoteAddr = "192.168.0.1"
-	
+
 		limiter.ServeHTTP(rr, req)
-		rr = httptest.NewRecorder()  
+		rr = httptest.NewRecorder()
 		limiter.ServeHTTP(rr, req)
-		rr = httptest.NewRecorder()  
-		limiter.ServeHTTP(rr, req) 
-	
+		rr = httptest.NewRecorder()
+		limiter.ServeHTTP(rr, req)
+
 		if status := rr.Code; status != http.StatusTooManyRequests {
 			t.Errorf("unexpected status: got %v want %v", status, http.StatusTooManyRequests)
 		}
