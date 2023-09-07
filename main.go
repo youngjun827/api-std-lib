@@ -24,10 +24,10 @@ func main() {
 
 	mux := routes.SetupRoutes(userRepository)
 
-	fmt.Println("Server is running on port 8080...")
+	fmt.Println("Server is running on port 8081...")
 
 	srv := &http.Server{
-		Addr:         ":8080",
+		Addr:         ":8081",
 		Handler:      mux,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
