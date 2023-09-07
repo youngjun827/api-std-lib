@@ -13,18 +13,11 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Assume role
-        uses: aws-actions/assume-role@v2
-        with:
-          role-arn: arn:aws:iam::839120192450:role/my-github-actions-role-Role-1D8JBVL4MO12
-          aws-region: us-east-1
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
-          aws-access-key-id: ${{ steps.assume-role.outputs.access_key_id }}
-          aws-secret-access-key: ${{ steps.assume-role.outputs.secret_access_key }}
-          aws-session-token: ${{ steps.assume-role.outputs.session_token }}
+          role-arn: arn:aws:iam::839120192450:role/my-github-actions-role-Role-1D8JBVL4MO12
+          aws-region: us-east-1
 
       - name: Login to Amazon ECR
         id: login-ecr
