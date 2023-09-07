@@ -16,12 +16,6 @@ This project is a RESTful API built with Go, utilizing only its standard library
 
 ## Features
 
-- User Creation
-- User Retrieval
-- List all Users
-- Update User Details
-- Delete User
-- In-memory caching for optimized read operations
 - Rate limiting
 - Basic logging
 - Data validation
