@@ -17,7 +17,7 @@ This project is a RESTful API built with Go, utilizing only its standard library
 ## Features
 
 - Rate limiting
-- Basic logging
+- Logging using `slog`
 - Data validation
 - Error handling
 - Asynchronous data processing
