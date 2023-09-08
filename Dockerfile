@@ -15,5 +15,5 @@ COPY wait-for.sh .
 COPY db/migration ./migration
 
 EXPOSE 8081
-CMD [ "/app/main" ]
+CMD [ "/app/main"]
 ENTRYPOINT [ "/app/start.sh" ]
