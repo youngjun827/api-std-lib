@@ -13,7 +13,7 @@ services:
     ports:
       - "8081:8081"
     environment:
-      - DB_SOURCE=postgresql://root:secret@postgres:5432/api-std-lib-db?sslmode=disable
+      - DB_SOURCE=postgresql://root:secret@localhost:5432/api-std-lib-db?sslmode=disable
     depends_on:
       - postgres
     entrypoint: ["/app/wait-for.sh", "postgres:5432", "--", "/app/start.sh"]
