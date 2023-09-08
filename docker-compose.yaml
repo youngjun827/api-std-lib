@@ -3,8 +3,8 @@ services:
   postgres:
     image: postgres:12-alpine
     environment:
-      - POSTGRES_USER=your_username
-      - POSTGRES_PASSWORD=your_password
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=secret
       - POSTGRES_DB=api_std_lib
   api:
     build:
@@ -13,7 +13,7 @@ services:
     ports:
       - "8081:8081"
     environment:
-      - DB_SOURCE=postgresql://your_username:your_password@postgres:5432/api_std_lib?sslmode=disable
+      - DB_SOURCE=postgresql://root:secret@postgres:5432/api_std_lib?sslmode=disable
     depends_on:
       - postgres
     entrypoint: ["/app/wait-for.sh", "postgres:5432", "--", "/app/start.sh"]

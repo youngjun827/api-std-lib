@@ -20,13 +20,7 @@ func InitDB() {
 		slog.Error("Error loading .env file")
 	}
 
-	host := os.Getenv("DB_HOST")
-	port := os.Getenv("DB_PORT")
-	user := os.Getenv("DB_USER")
-	password := os.Getenv("DB_PASSWORD")
-	dbname := os.Getenv("DB_NAME")
-
-	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+    connStr := os.Getenv("DB_SOURCE")
 
 	var err error
 	DB, err = sql.Open("postgres", connStr)
