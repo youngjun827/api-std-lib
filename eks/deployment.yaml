@@ -17,5 +17,6 @@ spec:
       containers:
         - name: api-std-lib-api
           image: 989421027713.dkr.ecr.us-east-1.amazonaws.com/api-std-lib:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8081
