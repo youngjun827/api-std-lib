@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-std-lib-api-deployment
+  labels:
+    app: api-std-lib-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-std-lib-api
+  template:
+    metadata:
+      labels:
+        app: api-std-lib-api
+    spec:
+      containers:
+        - name: api-std-lib-api
+          image: 989421027713.dkr.ecr.us-east-1.amazonaws.com/api-std-lib:latest
+          ports:
+            - containerPort: 8081
