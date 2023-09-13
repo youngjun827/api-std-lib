@@ -11,16 +11,16 @@ dropdb:
 	docker exec -it api-std-lib-postgres dropdb api-std-lib-db
 
 migrateup:
-	migrate -path db/migration -database "postgresql://root:secret@localhost:5432/api-std-lib-db?sslmode=disable" -verbose up
+	migrate -path internal/database/migration -database "postgresql://root:secret@localhost:5432/api-std-lib-db?sslmode=disable" -verbose up
 
 migrateup1:
-	migrate -path db/migration -database "postgresql://root:secret@localhost:5432/api-std-lib-db?sslmode=disable" -verbose up 1
+	migrate -path internal/database/migration -database "postgresql://root:secret@localhost:5432/api-std-lib-db?sslmode=disable" -verbose up 1
 
 migratedown:
-	migrate -path db/migration -database "postgresql://root:secret@localhost:5432/api-std-lib-db?sslmode=disable" -verbose down
+	migrate -path internal/database/migration -database "postgresql://root:secret@localhost:5432/api-std-lib-db?sslmode=disable" -verbose down
 
 migratedown1:
-	migrate -path db/migration -database "postgresql://root:secret@localhost:5432/api-std-lib-db?sslmode=disable" -verbose down 1
+	migrate -path internal/database/migration -database "postgresql://root:secret@localhost:5432/api-std-lib-db?sslmode=disable" -verbose down 1
 
 test:
 	go test -v -cover ./...
