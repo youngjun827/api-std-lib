@@ -17,7 +17,7 @@ func SetupRoutes(userRepository db.UserRepository) *http.ServeMux {
 		case http.MethodGet:
 			handlers.ListUsers(w, r, userRepository)
 		default:
-			middleware.JSONError(w, fmt.Errorf("Method not allowed"), http.StatusMethodNotAllowed)
+			middleware.JSONError(w, fmt.Errorf("Method not allowed. Only GET method is allowed."), http.StatusMethodNotAllowed)
 		}
 	})
 
@@ -32,7 +32,7 @@ func SetupRoutes(userRepository db.UserRepository) *http.ServeMux {
 		case http.MethodDelete:
 			handlers.DeleteUser(w, r, userRepository)
 		default:
-			middleware.JSONError(w, fmt.Errorf("Method not allowed"), http.StatusMethodNotAllowed)
+			middleware.JSONError(w, fmt.Errorf("Method not allowed. POST, GET, PUT, DELETE methods are allowed."), http.StatusMethodNotAllowed)
 		}
 	})
 
