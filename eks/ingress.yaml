@@ -14,17 +14,17 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: "api.driveguard.net"
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: api-std-lib-service
-                port:
-                  number: 80
+  - host: "api.driveguard.net"
+    http:
+      paths:
+      - path: "/"
+        pathType: Prefix
+        backend:
+          service:
+            name: api-std-lib-service
+            port:
+              number: 80
   tls:
-    - hosts:
-        - api.driveguard.net
-      secretName: api-std-lib-api-cert
+  - hosts:
+    - api.driveguard.net
+    secretName: api-std-lib-api-cert
