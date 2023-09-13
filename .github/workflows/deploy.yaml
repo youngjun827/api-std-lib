@@ -53,3 +53,4 @@ jobs:
         kubectl apply -f eks/service.yaml
         kubectl apply -f eks/issuer.yaml
         kubectl apply -f eks/ingress.yaml
+        kubectl rollout restart deploy api-std-lib-api-deployment
