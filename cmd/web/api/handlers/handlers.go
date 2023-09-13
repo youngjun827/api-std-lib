@@ -9,9 +9,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/youngjun827/api-std-lib/api/models"
-	"github.com/youngjun827/api-std-lib/db"
-	"github.com/youngjun827/api-std-lib/middleware"
+	db "github.com/youngjun827/api-std-lib/internal/database"
+	"github.com/youngjun827/api-std-lib/internal/database/models"
+	"github.com/youngjun827/api-std-lib/internal/middleware"
 )
 
 var userRepository db.UserRepository

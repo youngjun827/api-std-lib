@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/youngjun827/api-std-lib/api/handlers"
-	"github.com/youngjun827/api-std-lib/db"
-	"github.com/youngjun827/api-std-lib/middleware"
+	"github.com/youngjun827/api-std-lib/cmd/web/api/handlers"
+	"github.com/youngjun827/api-std-lib/internal/database"
+	"github.com/youngjun827/api-std-lib/internal/middleware"
 )
 
-func SetupRoutes(userRepository db.UserRepository) *http.ServeMux {
+func SetupRoutes(userRepository database.UserRepository) *http.ServeMux {
 	mux := http.NewServeMux()
 
 	usersHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

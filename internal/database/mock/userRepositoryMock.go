@@ -1,4 +1,4 @@
-package db
+package mock
 
 import (
 	"encoding/json"
@@ -7,7 +7,7 @@ import (
 
 	"log/slog"
 
-	"github.com/youngjun827/api-std-lib/api/models"
+	"github.com/youngjun827/api-std-lib/internal/database/models"
 )
 
 type UserRepositoryMock struct {
