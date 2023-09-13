@@ -8,12 +8,13 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/youngjun827/api-std-lib/api/models"
-	"github.com/youngjun827/api-std-lib/db"
+	"github.com/youngjun827/api-std-lib/internal/database"
+	"github.com/youngjun827/api-std-lib/internal/database/mock"
+	"github.com/youngjun827/api-std-lib/internal/database/models"
 )
 
 func TestUserController(t *testing.T) {
-	userRepository := &db.UserRepositoryMock{
+	userRepository := &mock.UserRepositoryMock{
 		MockCreateUser: func(user models.User) (int, error) {
 			return 1, nil
 		},
@@ -156,7 +157,7 @@ func TestUserController(t *testing.T) {
 }
 
 func resetDB() {
-	conn := db.DB
+	conn := database.DB
 
 	_, err := conn.Exec("TRUNCATE TABLE users RESTART IDENTITY CASCADE")
 	if err != nil {

@@ -11,16 +11,16 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/youngjun827/api-std-lib/db"
-	"github.com/youngjun827/api-std-lib/routes"
+	"github.com/youngjun827/api-std-lib/cmd/web/api/routes"
+	"github.com/youngjun827/api-std-lib/internal/database"
 )
 
 func main() {
 	runtime.GOMAXPROCS(1)
 
-	db.InitDB()
+	database.InitDB()
 
-	userRepository := db.NewUserRepositorySQL(db.DB)
+	userRepository := database.NewUserRepositorySQL(database.DB)
 
 	mux := routes.SetupRoutes(userRepository)
 

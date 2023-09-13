@@ -1,11 +1,11 @@
-package db
+package database
 
 import (
 	"database/sql"
 
 	"log/slog"
 
-	"github.com/youngjun827/api-std-lib/api/models"
+	"github.com/youngjun827/api-std-lib/internal/database/models"
 )
 
 type UserRepository interface {
