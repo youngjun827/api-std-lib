@@ -1,21 +1,20 @@
 package database
 
 import (
-	"bufio"
 	"database/sql"
 	"fmt"
 	"log/slog"
 	"os"
-	"strings"
 	"time"
 
 	_ "github.com/lib/pq"
+	"github.com/youngjun827/api-std-lib/internal/middleware"
 )
 
 var DB *sql.DB
 
 func InitDB() {
-	errEnv := loadEnvVariables()
+	errEnv := middleware.LoadEnvVariables()
 	if errEnv != nil {
 		slog.Error("Error loading .env file")
 	}
@@ -41,30 +40,3 @@ func InitDB() {
 	fmt.Println("Successfully connected to the database.")
 }
 
-func loadEnvVariables() error {
-	// Open the .env file.
-	file, err := os.Open(".env")
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	// Read the file line by line.
-	lines := make([]string, 0)
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-
-	// Parse and set the environment variables.
-	for _, line := range lines {
-		parts := strings.SplitN(line, "=", 2)
-		if len(parts) == 2 {
-			key := strings.TrimSpace(parts[0])
-			value := strings.TrimSpace(parts[1])
-			os.Setenv(key, value)
-		}
-	}
-
-	return nil
-}

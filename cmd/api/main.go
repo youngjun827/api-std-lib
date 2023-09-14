@@ -13,6 +13,7 @@ import (
 
 	"github.com/youngjun827/api-std-lib/cmd/api/routes"
 	"github.com/youngjun827/api-std-lib/internal/database"
+	"github.com/youngjun827/api-std-lib/internal/middleware"
 )
 
 func main() {
@@ -24,10 +25,17 @@ func main() {
 
 	mux := routes.SetupRoutes(userRepository)
 
-	fmt.Println("Server is running on port 8081...")
+	errEnv := middleware.LoadEnvVariables()
+	if errEnv != nil {
+		slog.Error("Error loading .env file")
+	}
+
+	addr := os.Getenv("ADDR")
+	
+	fmt.Printf("Server is running on port%s", addr)
 
 	srv := &http.Server{
-		Addr:         ":8081",
+		Addr:         fmt.Sprintf("%s", addr),
 		Handler:      mux,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
