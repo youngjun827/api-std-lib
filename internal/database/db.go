@@ -39,4 +39,3 @@ func InitDB() {
 
 	fmt.Println("Successfully connected to the database.")
 }
-

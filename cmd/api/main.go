@@ -31,7 +31,7 @@ func main() {
 	}
 
 	addr := os.Getenv("ADDR")
-	
+
 	fmt.Printf("Server is running on port%s", addr)
 
 	srv := &http.Server{
