@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/youngjun827/api-std-lib/cmd/web/api/handlers"
+	"github.com/youngjun827/api-std-lib/cmd/api/handlers"
 	"github.com/youngjun827/api-std-lib/internal/database"
 	"github.com/youngjun827/api-std-lib/internal/middleware"
 )

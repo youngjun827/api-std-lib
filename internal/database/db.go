@@ -20,7 +20,7 @@ func InitDB() {
 		slog.Error("Error loading .env file")
 	}
 
-    connStr := os.Getenv("DB_SOURCE")
+	connStr := os.Getenv("DB_SOURCE")
 
 	var err error
 	DB, err = sql.Open("postgres", connStr)

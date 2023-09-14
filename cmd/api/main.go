@@ -11,7 +11,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/youngjun827/api-std-lib/cmd/web/api/routes"
+	"github.com/youngjun827/api-std-lib/cmd/api/routes"
 	"github.com/youngjun827/api-std-lib/internal/database"
 )
 
