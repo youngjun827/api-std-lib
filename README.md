@@ -24,7 +24,7 @@ This project is a RESTful API built with Go, utilizing only its standard library
 
 ## Requirements
 
-- Go 1.17 or higher
+- Go 1.21
 - PostgreSQL database
 
 ## Installation
