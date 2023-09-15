@@ -44,8 +44,7 @@ func RateLimiter(next http.Handler) http.Handler {
 		count, _ := requests.LoadOrStore(clientIP, 0)
 		requestCount := count.(int)
 
-		// Log request
-		slog.Info("Rate limiting request: clientIP=%s, requestCount=%d", clientIP, requestCount)
+		slog.Info("Rate limiting request", "IPAddress", clientIP, "RequestCount", requestCount)
 
 		if requestCount >= requestLimit {
 			err := fmt.Errorf("Rate limit exceeded for client IP: %s", clientIP)

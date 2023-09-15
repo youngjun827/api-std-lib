@@ -7,8 +7,6 @@ import (
 	"regexp"
 	"unicode"
 
-	"log/slog"
-
 	"github.com/youngjun827/api-std-lib/internal/database/models"
 )
 
@@ -43,34 +41,27 @@ func ValidatePassword(password string) bool {
 
 func ValidateUser(user models.User) error {
 	if user.Name == "" {
-		slog.Error("Invalid user: name is required")
 		return errors.New("name is required")
 	}
 	if len(user.Name) < 3 {
-		slog.Error("Invalid user: name should be at least 3 characters long")
 		return errors.New("name should be at least 3 characters long")
 	}
 	if user.Email == "" {
-		slog.Error("Invalid user: email is required")
 		return errors.New("email is required")
 	}
 	if !ValidateEmail(user.Email) {
-		slog.Error("Invalid user: invalid email format")
 		return errors.New("invalid email format")
 	}
 	if user.Password == "" {
-		slog.Error("Invalid user: password is required")
 		return errors.New("password is required")
 	}
 	if !ValidatePassword(user.Password) {
-		slog.Error("Invalid user: password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, and one digit")
 		return errors.New("password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, and one digit")
 	}
 	return nil
 }
 
 func ReturnJSONError(err error) error {
-	slog.Error("Error validating user: %v", err)
 	jsonErr := map[string]string{
 		"error": err.Error(),
 	}

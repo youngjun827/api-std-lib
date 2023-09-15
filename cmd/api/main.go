@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -24,7 +23,7 @@ func main() {
 
 	mux := routes.SetupRoutes(userRepository)
 
-	fmt.Println("Server is running on port 8081")
+	slog.Info("Starting Server on PORT:8081")
 
 	srv := &http.Server{
 		Addr:         ":8081",

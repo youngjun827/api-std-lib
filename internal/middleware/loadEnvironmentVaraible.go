@@ -2,26 +2,23 @@ package middleware
 
 import (
 	"bufio"
+	"log/slog"
 	"os"
 	"strings"
 )
 
 func LoadEnvVariables() error {
-	// Open the .env file.
 	file, err := os.Open(".env")
 	if err != nil {
+		slog.Error("Failed to load the environment variable .env", "error", err)
 		return err
 	}
 	defer file.Close()
-
-	// Read the file line by line.
 	lines := make([]string, 0)
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		lines = append(lines, scanner.Text())
 	}
-
-	// Parse and set the environment variables.
 	for _, line := range lines {
 		parts := strings.SplitN(line, "=", 2)
 		if len(parts) == 2 {

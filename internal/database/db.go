@@ -2,7 +2,6 @@ package database
 
 import (
 	"database/sql"
-	"fmt"
 	"log/slog"
 	"os"
 	"time"
@@ -16,7 +15,7 @@ var DB *sql.DB
 func InitDB() {
 	errEnv := middleware.LoadEnvVariables()
 	if errEnv != nil {
-		slog.Error("Error loading .env file")
+		slog.Error("Error loading .env file", "error", errEnv)
 	}
 
 	connStr := os.Getenv("DB_SOURCE")
@@ -24,7 +23,7 @@ func InitDB() {
 	var err error
 	DB, err = sql.Open("postgres", connStr)
 	if err != nil {
-		slog.Error("Failed to connect to database")
+		slog.Error("Failed to connect to database", "error", err)
 	}
 
 	// Set connection pool parameters
@@ -34,8 +33,8 @@ func InitDB() {
 
 	err = DB.Ping()
 	if err != nil {
-		slog.Error("Failed to ping database")
+		slog.Error("Failed to ping database", "error", err)
 	}
 
-	fmt.Println("Successfully connected to the database.")
+	slog.Info("Successfully connected to the database.")
 }
