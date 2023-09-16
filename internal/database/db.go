@@ -10,31 +10,28 @@ import (
 	"github.com/youngjun827/api-std-lib/internal/middleware"
 )
 
-var DB *sql.DB
 
-func InitDB() {
+func InitDB()(*sql.DB, error) {
 	errEnv := middleware.LoadEnvVariables()
 	if errEnv != nil {
 		slog.Error("Error loading .env file", "error", errEnv)
+		return nil, errEnv
 	}
 
 	connStr := os.Getenv("DB_SOURCE")
 
-	var err error
-	DB, err = sql.Open("postgres", connStr)
+	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		slog.Error("Failed to connect to database", "error", err)
+		return nil, err
+	}	
+	if err = db.Ping(); err != nil { 
+		return nil, err
 	}
 
-	// Set connection pool parameters
-	DB.SetMaxOpenConns(10)
-	DB.SetMaxIdleConns(5)
-	DB.SetConnMaxLifetime(time.Minute)
+	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(5)
+	db.SetConnMaxLifetime(time.Minute)
 
-	err = DB.Ping()
-	if err != nil {
-		slog.Error("Failed to ping database", "error", err)
-	}
-
-	slog.Info("Successfully connected to the database.")
+	return db, nil
 }

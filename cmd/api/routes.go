@@ -1,21 +1,19 @@
-package routes
+package main
 
 import (
 	"fmt"
 	"net/http"
 
-	"github.com/youngjun827/api-std-lib/cmd/api/handlers"
-	"github.com/youngjun827/api-std-lib/internal/database"
 	"github.com/youngjun827/api-std-lib/internal/middleware"
 )
 
-func SetupRoutes(userRepository database.UserRepository) *http.ServeMux {
+func (app *application) SetupRoutes() *http.ServeMux {
 	mux := http.NewServeMux()
 
 	usersHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
-			handlers.ListUsers(w, r, userRepository)
+			app.ListUsers(w, r)
 		default:
 			middleware.JSONError(w, fmt.Errorf("Method not allowed. Only GET method is allowed."), http.StatusMethodNotAllowed)
 		}
@@ -24,13 +22,13 @@ func SetupRoutes(userRepository database.UserRepository) *http.ServeMux {
 	userHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodPost:
-			handlers.CreateUser(w, r, userRepository)
+			app.CreateUser(w, r)
 		case http.MethodGet:
-			handlers.GetUser(w, r, userRepository)
+			app.GetUser(w, r)
 		case http.MethodPut:
-			handlers.UpdateUser(w, r, userRepository)
+			app.UpdateUser(w, r)
 		case http.MethodDelete:
-			handlers.DeleteUser(w, r, userRepository)
+			app.DeleteUser(w, r)
 		default:
 			middleware.JSONError(w, fmt.Errorf("Method not allowed. POST, GET, PUT, DELETE methods are allowed."), http.StatusMethodNotAllowed)
 		}

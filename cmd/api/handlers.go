@@ -1,4 +1,4 @@
-package handlers
+package main
 
 import (
 	"database/sql"
@@ -8,18 +8,12 @@ import (
 	"strconv"
 	"strings"
 
-	db "github.com/youngjun827/api-std-lib/internal/database"
 	"github.com/youngjun827/api-std-lib/internal/database/models"
 	"github.com/youngjun827/api-std-lib/internal/middleware"
 )
 
-var userRepository db.UserRepository
 
-func init() {
-	userRepository = db.NewUserRepositorySQL(db.DB)
-}
-
-func CreateUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRepository) {
+func (app *application) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	decoder := json.NewDecoder(r.Body)
 
@@ -33,7 +27,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRe
 		return
 	}
 
-	id, err := userRepository.CreateUser(user)
+	id, err := app.users.CreateUser(user)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			middleware.JSONError(w, fmt.Errorf("User already exists"), http.StatusBadRequest)
@@ -47,7 +41,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRe
 	json.NewEncoder(w).Encode(id)
 }
 
-func GetUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRepository) {
+func (app *application) GetUser(w http.ResponseWriter, r *http.Request) {
 	idParam := strings.TrimPrefix(r.URL.Path, "/user/")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
@@ -55,7 +49,7 @@ func GetUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRepos
 		return
 	}
 
-	user, err := userRepository.GetUserByID(id)
+	user, err := app.users.GetUserByID(id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			middleware.JSONError(w, fmt.Errorf("User with ID %d not found", id), http.StatusNotFound)
@@ -69,13 +63,9 @@ func GetUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRepos
 	json.NewEncoder(w).Encode(user)
 }
 
-func ListUsers(w http.ResponseWriter, r *http.Request, userRepository db.UserRepository) {
-	users, err := userRepository.ListUsers()
+func (app *application) ListUsers(w http.ResponseWriter, r *http.Request) {
+	users, err := app.users.ListUsers()
 	if err != nil {
-		if err == sql.ErrNoRows {
-			middleware.JSONError(w, fmt.Errorf("No users found"), http.StatusNotFound)
-			return
-		}
 		middleware.JSONError(w, err, http.StatusInternalServerError)
 		return
 	}
@@ -84,7 +74,8 @@ func ListUsers(w http.ResponseWriter, r *http.Request, userRepository db.UserRep
 	json.NewEncoder(w).Encode(users)
 }
 
-func UpdateUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRepository) {
+
+func (app *application) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	idParam := strings.TrimPrefix(r.URL.Path, "/user/")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
@@ -104,7 +95,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRe
 		return
 	}
 
-	err = userRepository.UpdateUser(id, user)
+	err = app.users.UpdateUser(id, user)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			middleware.JSONError(w, fmt.Errorf("User with ID %d not found", id), http.StatusNotFound)
@@ -114,10 +105,10 @@ func UpdateUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRe
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	w.WriteHeader(http.StatusOK)
 }
 
-func DeleteUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRepository) {
+func (app *application) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	idParam := strings.TrimPrefix(r.URL.Path, "/user/")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
@@ -125,7 +116,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request, userRepository db.UserRe
 		return
 	}
 
-	err = userRepository.DeleteUser(id)
+	err = app.users.DeleteUser(id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			middleware.JSONError(w, fmt.Errorf("User with ID %d not found", id), http.StatusNotFound)
