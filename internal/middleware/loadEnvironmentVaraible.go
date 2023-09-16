@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func LoadEnvVariables() (error) {
+func LoadEnvVariables() error {
 	file, err := os.Open(".env")
 	if err != nil {
 		slog.Error("Failed to load the environment variable .env", "error", err)

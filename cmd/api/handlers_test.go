@@ -83,7 +83,7 @@ func TestCreateUser_InvalidUser(t *testing.T) {
 
 func TestCreateUser_UserExists(t *testing.T) {
 	app := setupMockApp()
-	app.users = mock.NewMockUserModel(true) 
+	app.users = mock.NewMockUserModel(true)
 
 	userData := generateUserData()
 	userData.Email = "exists@example.com"
@@ -102,7 +102,7 @@ func TestCreateUser_UserExists(t *testing.T) {
 
 func TestCreateUser_UnexpectedError(t *testing.T) {
 	app := setupMockApp()
-	app.users = mock.NewMockUserModel(true) 
+	app.users = mock.NewMockUserModel(true)
 
 	userData := generateUserData()
 	jsonData, _ := json.Marshal(userData)
@@ -118,77 +118,77 @@ func TestCreateUser_UnexpectedError(t *testing.T) {
 }
 
 func TestGetUser(t *testing.T) {
-    app := setupMockApp()
+	app := setupMockApp()
 
-    userID := 1
+	userID := 1
 
-    req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/user/%d", userID), nil)
-    rr := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/user/%d", userID), nil)
+	rr := httptest.NewRecorder()
 
-    app.GetUser(rr, req)
+	app.GetUser(rr, req)
 
-    if status := rr.Code; status != http.StatusOK {
-        t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusOK)
-    }
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
 
-    expectedUser := mock.MockUser
+	expectedUser := mock.MockUser
 
-    var responseUser models.User
-    if err := json.Unmarshal(rr.Body.Bytes(), &responseUser); err != nil {
-        t.Errorf("Error decoding JSON response: %v", err)
-    }
+	var responseUser models.User
+	if err := json.Unmarshal(rr.Body.Bytes(), &responseUser); err != nil {
+		t.Errorf("Error decoding JSON response: %v", err)
+	}
 
-    if responseUser.ID != expectedUser.ID ||
-        responseUser.Name != expectedUser.Name ||
-        responseUser.Email != expectedUser.Email ||
-        responseUser.Password != expectedUser.Password {
-        t.Errorf("Handler returned unexpected user data: got %+v, want %+v", responseUser, expectedUser)
-    }
+	if responseUser.ID != expectedUser.ID ||
+		responseUser.Name != expectedUser.Name ||
+		responseUser.Email != expectedUser.Email ||
+		responseUser.Password != expectedUser.Password {
+		t.Errorf("Handler returned unexpected user data: got %+v, want %+v", responseUser, expectedUser)
+	}
 }
 
 func TestGetUser_InvalidID(t *testing.T) {
-    app := setupMockApp()
+	app := setupMockApp()
 
-    req, _ := http.NewRequest(http.MethodGet, "/user/invalid", nil)
-    rr := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodGet, "/user/invalid", nil)
+	rr := httptest.NewRecorder()
 
-    app.GetUser(rr, req)
+	app.GetUser(rr, req)
 
-    if status := rr.Code; status != http.StatusBadRequest {
-        t.Errorf("Handler returned wrong status code for invalid ID: got %v want %v", status, http.StatusNotFound)
-    }
+	if status := rr.Code; status != http.StatusBadRequest {
+		t.Errorf("Handler returned wrong status code for invalid ID: got %v want %v", status, http.StatusNotFound)
+	}
 }
 
 func TestGetUser_UserNotFound(t *testing.T) {
-    app := setupMockApp()
+	app := setupMockApp()
 
-    nonExistingUserID := 999
+	nonExistingUserID := 999
 
-    req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/user/%d", nonExistingUserID), nil)
-    rr := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/user/%d", nonExistingUserID), nil)
+	rr := httptest.NewRecorder()
 
-    app.GetUser(rr, req)
+	app.GetUser(rr, req)
 
-    if status := rr.Code; status != http.StatusNotFound {
-        t.Errorf("Handler returned wrong status code for user not found: got %v want %v", status, http.StatusNotFound)
-    }
+	if status := rr.Code; status != http.StatusNotFound {
+		t.Errorf("Handler returned wrong status code for user not found: got %v want %v", status, http.StatusNotFound)
+	}
 }
 
 func TestGetUser_InternalServerError(t *testing.T) {
-    app := setupMockApp()
+	app := setupMockApp()
 
-    app.users.(*mock.MockUserModel).ErrorMode = true
+	app.users.(*mock.MockUserModel).ErrorMode = true
 
-    userID := 1
+	userID := 1
 
-    req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/user/%d", userID), nil)
-    rr := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/user/%d", userID), nil)
+	rr := httptest.NewRecorder()
 
-    app.GetUser(rr, req)
+	app.GetUser(rr, req)
 
-    if status := rr.Code; status != http.StatusInternalServerError {
-        t.Errorf("Handler returned wrong status code for unexpected error: got %v want %v", status, http.StatusInternalServerError)
-    }
+	if status := rr.Code; status != http.StatusInternalServerError {
+		t.Errorf("Handler returned wrong status code for unexpected error: got %v want %v", status, http.StatusInternalServerError)
+	}
 }
 
 func TestListUsers(t *testing.T) {
@@ -218,7 +218,7 @@ func TestListUsers(t *testing.T) {
 	}
 }
 func TestListUsers_InternalServerError(t *testing.T) {
-	
+
 	app := setupMockApp()
 	app.users = mock.NewMockUserModel(true)
 
@@ -240,7 +240,7 @@ func TestUpdateUser_StatusOK(t *testing.T) {
 	app := setupMockApp()
 
 	user := models.User{
-		ID: 	  1,
+		ID:       1,
 		Name:     "UpdatedName",
 		Email:    "updated@example.com",
 		Password: "UpdatedPassword123",
@@ -258,147 +258,145 @@ func TestUpdateUser_StatusOK(t *testing.T) {
 }
 
 func TestUpdateUser_InvalidInputParameter(t *testing.T) {
-    app := setupMockApp()
+	app := setupMockApp()
 
-    req, _ := http.NewRequest(http.MethodPut, "/user/invalid", nil)
-    rr := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodPut, "/user/invalid", nil)
+	rr := httptest.NewRecorder()
 
-    app.UpdateUser(rr, req)
+	app.UpdateUser(rr, req)
 
-    if status := rr.Code; status != http.StatusBadRequest {
-        t.Errorf("Handler returned wrong status code for valid input: got %v want %v", status, http.StatusNotFound)
-    }
+	if status := rr.Code; status != http.StatusBadRequest {
+		t.Errorf("Handler returned wrong status code for valid input: got %v want %v", status, http.StatusNotFound)
+	}
 }
 
-
 func TestUpdateUser_InvalidJSON(t *testing.T) {
-    app := setupMockApp()
+	app := setupMockApp()
 
-    req, _ := http.NewRequest(http.MethodPut, "/user/1", bytes.NewBufferString("this is not a JSON string"))
-    rr := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodPut, "/user/1", bytes.NewBufferString("this is not a JSON string"))
+	rr := httptest.NewRecorder()
 
-    app.UpdateUser(rr, req)
+	app.UpdateUser(rr, req)
 
-    if status := rr.Code; status != http.StatusBadRequest {
-        t.Errorf("Handler returned wrong status code for invalid JSON: got %v want %v", status, http.StatusBadRequest)
-    }
+	if status := rr.Code; status != http.StatusBadRequest {
+		t.Errorf("Handler returned wrong status code for invalid JSON: got %v want %v", status, http.StatusBadRequest)
+	}
 }
 
 func TestUpdateUser_InvalidUser(t *testing.T) {
-    app := setupMockApp()
+	app := setupMockApp()
 
-    userData := generateUserData()
-    userData.Name = ""
+	userData := generateUserData()
+	userData.Name = ""
 
-    jsonData, _ := json.Marshal(userData)
+	jsonData, _ := json.Marshal(userData)
 
-    req, _ := http.NewRequest(http.MethodPut, "/user/1", bytes.NewBuffer(jsonData))
-    rr := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodPut, "/user/1", bytes.NewBuffer(jsonData))
+	rr := httptest.NewRecorder()
 
-    app.UpdateUser(rr, req)
+	app.UpdateUser(rr, req)
 
-    // Check the response status code.
-    if status := rr.Code; status != http.StatusBadRequest {
-        t.Errorf("Handler returned wrong status code for invalid user: got %v want %v", status, http.StatusBadRequest)
-    }
+	// Check the response status code.
+	if status := rr.Code; status != http.StatusBadRequest {
+		t.Errorf("Handler returned wrong status code for invalid user: got %v want %v", status, http.StatusBadRequest)
+	}
 }
 
 func TestUpdateUser_UserNotFound(t *testing.T) {
-    app := setupMockApp()
+	app := setupMockApp()
 
-    nonExistingUserID := 999
+	nonExistingUserID := 999
 
-    userData := generateUserData()
+	userData := generateUserData()
 
-    jsonData, _ := json.Marshal(userData)
+	jsonData, _ := json.Marshal(userData)
 
-    req, _ := http.NewRequest(http.MethodPut, fmt.Sprintf("/user/%d", nonExistingUserID), bytes.NewBuffer(jsonData))
-    rr := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodPut, fmt.Sprintf("/user/%d", nonExistingUserID), bytes.NewBuffer(jsonData))
+	rr := httptest.NewRecorder()
 
-    app.UpdateUser(rr, req)
+	app.UpdateUser(rr, req)
 
-    if status := rr.Code; status != http.StatusNotFound {
-        t.Errorf("Handler returned wrong status code for user not found: got %v want %v", status, http.StatusNotFound)
-    }
+	if status := rr.Code; status != http.StatusNotFound {
+		t.Errorf("Handler returned wrong status code for user not found: got %v want %v", status, http.StatusNotFound)
+	}
 }
 
 func TestUpdateUser_UnexpectedError(t *testing.T) {
-    app := setupMockApp()
-    app.users = mock.NewMockUserModel(true)
+	app := setupMockApp()
+	app.users = mock.NewMockUserModel(true)
 
-    userData := generateUserData()
+	userData := generateUserData()
 
-    jsonData, _ := json.Marshal(userData)
+	jsonData, _ := json.Marshal(userData)
 
-    req, _ := http.NewRequest(http.MethodPut, "/user/1", bytes.NewBuffer(jsonData))
-    rr := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodPut, "/user/1", bytes.NewBuffer(jsonData))
+	rr := httptest.NewRecorder()
 
-    app.UpdateUser(rr, req)
+	app.UpdateUser(rr, req)
 
-    if status := rr.Code; status != http.StatusInternalServerError {
-        t.Errorf("Handler returned wrong status code for unexpected error: got %v want %v", status, http.StatusInternalServerError)
-    }
+	if status := rr.Code; status != http.StatusInternalServerError {
+		t.Errorf("Handler returned wrong status code for unexpected error: got %v want %v", status, http.StatusInternalServerError)
+	}
 }
 
 func TestDeleteUser_Success(t *testing.T) {
-    app := setupMockApp()
+	app := setupMockApp()
 
-    // Assume the user with ID 1 exists
-    userID := 1
+	// Assume the user with ID 1 exists
+	userID := 1
 
-    req, _ := http.NewRequest(http.MethodDelete, fmt.Sprintf("/user/%d", userID), nil)
-    rr := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodDelete, fmt.Sprintf("/user/%d", userID), nil)
+	rr := httptest.NewRecorder()
 
-    app.DeleteUser(rr, req)
+	app.DeleteUser(rr, req)
 
-    if status := rr.Code; status != http.StatusNoContent {
-        t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusNoContent)
-    }
+	if status := rr.Code; status != http.StatusNoContent {
+		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusNoContent)
+	}
 }
 
 func TestDeleteUser_InvalidInputParameter(t *testing.T) {
-    app := setupMockApp()
+	app := setupMockApp()
 
-    req, _ := http.NewRequest(http.MethodDelete, "/user/invalid", nil)
-    rr := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodDelete, "/user/invalid", nil)
+	rr := httptest.NewRecorder()
 
-    app.DeleteUser(rr, req)
+	app.DeleteUser(rr, req)
 
-    if status := rr.Code; status != http.StatusBadRequest {
-        t.Errorf("Handler returned wrong status code for valid input: got %v want %v", status, http.StatusNotFound)
-    }
+	if status := rr.Code; status != http.StatusBadRequest {
+		t.Errorf("Handler returned wrong status code for valid input: got %v want %v", status, http.StatusNotFound)
+	}
 }
 
 func TestDeleteUser_UserNotFound(t *testing.T) {
-    app := setupMockApp()
+	app := setupMockApp()
 
-    // Assume the user with ID 999 does not exist
-    nonExistingUserID := 999
+	// Assume the user with ID 999 does not exist
+	nonExistingUserID := 999
 
-    req, _ := http.NewRequest(http.MethodDelete, fmt.Sprintf("/user/%d", nonExistingUserID), nil)
-    rr := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodDelete, fmt.Sprintf("/user/%d", nonExistingUserID), nil)
+	rr := httptest.NewRecorder()
 
-    app.DeleteUser(rr, req)
+	app.DeleteUser(rr, req)
 
-    if status := rr.Code; status != http.StatusNotFound {
-        t.Errorf("Handler returned wrong status code for user not found: got %v want %v", status, http.StatusNotFound)
-    }
+	if status := rr.Code; status != http.StatusNotFound {
+		t.Errorf("Handler returned wrong status code for user not found: got %v want %v", status, http.StatusNotFound)
+	}
 }
 
 func TestDeleteUser_UnexpectedError(t *testing.T) {
-    app := setupMockApp()
-    app.users = mock.NewMockUserModel(true) // Simulate an unexpected error
+	app := setupMockApp()
+	app.users = mock.NewMockUserModel(true) // Simulate an unexpected error
 
-    // Assume the user with ID 1 exists
-    userID := 1
+	// Assume the user with ID 1 exists
+	userID := 1
 
-    req, _ := http.NewRequest(http.MethodDelete, fmt.Sprintf("/user/%d", userID), nil)
-    rr := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodDelete, fmt.Sprintf("/user/%d", userID), nil)
+	rr := httptest.NewRecorder()
 
-    app.DeleteUser(rr, req)
+	app.DeleteUser(rr, req)
 
-    if status := rr.Code; status != http.StatusInternalServerError {
-        t.Errorf("Handler returned wrong status code for unexpected error: got %v want %v", status, http.StatusInternalServerError)
-    }
+	if status := rr.Code; status != http.StatusInternalServerError {
+		t.Errorf("Handler returned wrong status code for unexpected error: got %v want %v", status, http.StatusInternalServerError)
+	}
 }
-

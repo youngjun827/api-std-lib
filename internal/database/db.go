@@ -10,8 +10,7 @@ import (
 	"github.com/youngjun827/api-std-lib/internal/middleware"
 )
 
-
-func InitDB()(*sql.DB, error) {
+func InitDB() (*sql.DB, error) {
 	errEnv := middleware.LoadEnvVariables()
 	if errEnv != nil {
 		slog.Error("Error loading .env file", "error", errEnv)
@@ -24,8 +23,8 @@ func InitDB()(*sql.DB, error) {
 	if err != nil {
 		slog.Error("Failed to connect to database", "error", err)
 		return nil, err
-	}	
-	if err = db.Ping(); err != nil { 
+	}
+	if err = db.Ping(); err != nil {
 		return nil, err
 	}
 

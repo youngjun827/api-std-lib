@@ -16,7 +16,7 @@ import (
 
 type application struct {
 	logger *slog.Logger
-	users models.UserInterface
+	users  models.UserInterface
 }
 
 func main() {
@@ -31,7 +31,7 @@ func main() {
 
 	app := &application{
 		logger: logger,
-		users: &models.UserModel{DB: db}, 
+		users:  &models.UserModel{DB: db},
 	}
 
 	logger.Info("Starting Server on PORT:8081")

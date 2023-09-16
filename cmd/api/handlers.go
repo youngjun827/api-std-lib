@@ -12,7 +12,6 @@ import (
 	"github.com/youngjun827/api-std-lib/internal/middleware"
 )
 
-
 func (app *application) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	decoder := json.NewDecoder(r.Body)
@@ -27,7 +26,7 @@ func (app *application) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := app.users.CreateUser(user)
+	id, err := app.users.CreateUserQuery(user)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			middleware.JSONError(w, fmt.Errorf("User already exists"), http.StatusBadRequest)
@@ -49,7 +48,7 @@ func (app *application) GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := app.users.GetUserByID(id)
+	user, err := app.users.GetUserByIDQuery(id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			middleware.JSONError(w, fmt.Errorf("User with ID %d not found", id), http.StatusNotFound)
@@ -64,7 +63,7 @@ func (app *application) GetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) ListUsers(w http.ResponseWriter, r *http.Request) {
-	users, err := app.users.ListUsers()
+	users, err := app.users.ListUsersQuery()
 	if err != nil {
 		middleware.JSONError(w, err, http.StatusInternalServerError)
 		return
@@ -73,7 +72,6 @@ func (app *application) ListUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(users)
 }
-
 
 func (app *application) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	idParam := strings.TrimPrefix(r.URL.Path, "/user/")
@@ -95,7 +93,7 @@ func (app *application) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = app.users.UpdateUser(id, user)
+	err = app.users.UpdateUserQuery(id, user)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			middleware.JSONError(w, fmt.Errorf("User with ID %d not found", id), http.StatusNotFound)
@@ -116,7 +114,7 @@ func (app *application) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = app.users.DeleteUser(id)
+	err = app.users.DeleteUserQuery(id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			middleware.JSONError(w, fmt.Errorf("User with ID %d not found", id), http.StatusNotFound)

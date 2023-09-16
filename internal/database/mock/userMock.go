@@ -19,12 +19,12 @@ type MockUserModel struct {
 }
 
 func NewMockUserModel(errorMode bool) *MockUserModel {
-    return &MockUserModel{
-        ErrorMode: errorMode,
-    }
+	return &MockUserModel{
+		ErrorMode: errorMode,
+	}
 }
 
-func (m *MockUserModel) CreateUser(user models.User) (int, error) {
+func (m *MockUserModel) CreateUserQuery(user models.User) (int, error) {
 	if m.ErrorMode {
 		if user.Email == "exists@example.com" {
 			return 0, sql.ErrNoRows
@@ -34,18 +34,17 @@ func (m *MockUserModel) CreateUser(user models.User) (int, error) {
 	return MockUser.ID, nil
 }
 
-
-func (m *MockUserModel) GetUserByID(id int) (models.User, error) {
+func (m *MockUserModel) GetUserByIDQuery(id int) (models.User, error) {
 	if m.ErrorMode {
-        return models.User{}, errors.New("unexpected error")
-    }
+		return models.User{}, errors.New("unexpected error")
+	}
 	if id == MockUser.ID {
 		return MockUser, nil
 	}
 	return models.User{}, sql.ErrNoRows
 }
 
-func (m *MockUserModel) ListUsers() ([]models.User, error) {
+func (m *MockUserModel) ListUsersQuery() ([]models.User, error) {
 	if m.ErrorMode {
 		return nil, errors.New("unexpected error")
 	}
@@ -56,8 +55,7 @@ func (m *MockUserModel) ListUsers() ([]models.User, error) {
 	return []models.User{MockUser}, nil
 }
 
-
-func (m *MockUserModel) UpdateUser(id int, user models.User) error {
+func (m *MockUserModel) UpdateUserQuery(id int, user models.User) error {
 	if m.ErrorMode {
 		return errors.New("unexpected error")
 	}
@@ -67,8 +65,7 @@ func (m *MockUserModel) UpdateUser(id int, user models.User) error {
 	return nil
 }
 
-
-func (m *MockUserModel) DeleteUser(id int) error {
+func (m *MockUserModel) DeleteUserQuery(id int) error {
 	if m.ErrorMode {
 		return errors.New("unexpected error")
 	}
