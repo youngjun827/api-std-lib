@@ -3,8 +3,6 @@ package main
 import (
 	"fmt"
 	"net/http"
-
-	"github.com/youngjun827/api-std-lib/internal/middleware"
 )
 
 func (app *application) SetupRoutes() *http.ServeMux {
@@ -15,7 +13,7 @@ func (app *application) SetupRoutes() *http.ServeMux {
 		case http.MethodGet:
 			app.ListUsers(w, r)
 		default:
-			middleware.JSONError(w, fmt.Errorf("Method not allowed. Only GET method is allowed."), http.StatusMethodNotAllowed)
+			app.JsonErrorResponse(w, fmt.Errorf("Method not allowed. Only GET method is allowed."), http.StatusMethodNotAllowed)
 		}
 	})
 
@@ -30,12 +28,12 @@ func (app *application) SetupRoutes() *http.ServeMux {
 		case http.MethodDelete:
 			app.DeleteUser(w, r)
 		default:
-			middleware.JSONError(w, fmt.Errorf("Method not allowed. POST, GET, PUT, DELETE methods are allowed."), http.StatusMethodNotAllowed)
+			app.JsonErrorResponse(w, fmt.Errorf("Method not allowed. POST, GET, PUT, DELETE methods are allowed."), http.StatusMethodNotAllowed)
 		}
 	})
 
-	mux.Handle("/user/", middleware.RateLimiter(userHandler))
-	mux.Handle("/users", middleware.RateLimiter(usersHandler))
+	mux.Handle("/user/", app.RateLimiter(userHandler))
+	mux.Handle("/users", app.RateLimiter(usersHandler))
 
 	return mux
 }

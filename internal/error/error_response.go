@@ -1,4 +1,4 @@
-package middleware
+package error_response
 
 import (
 	"encoding/json"
@@ -10,7 +10,7 @@ type ErrorResponse struct {
 	Message string `json:"message"`
 }
 
-func JSONError(w http.ResponseWriter, err error, code int) {
+func (e *ErrorResponse) JsonErrorResponse(w http.ResponseWriter, err error, code int) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.WriteHeader(code)

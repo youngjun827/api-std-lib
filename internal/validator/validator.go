@@ -1,7 +1,6 @@
-package middleware
+package validator
 
 import (
-	"encoding/json"
 	"errors"
 	"net/mail"
 	"regexp"
@@ -10,7 +9,9 @@ import (
 	"github.com/youngjun827/api-std-lib/internal/database/models"
 )
 
-func ValidateEmail(email string) bool {
+type Validator struct {}
+
+func (v *Validator) ValidateEmail(email string) bool {
 	_, err := mail.ParseAddress(email)
 	if err != nil {
 		return false
@@ -20,7 +21,7 @@ func ValidateEmail(email string) bool {
 	return re.MatchString(email)
 }
 
-func ValidatePassword(password string) bool {
+func (v *Validator) ValidatePassword(password string) bool {
 	var (
 		hasUpper, hasLower, hasDigit bool
 		length                       int
@@ -39,7 +40,7 @@ func ValidatePassword(password string) bool {
 	return length >= 8 && hasUpper && hasLower && hasDigit
 }
 
-func ValidateUser(user models.User) error {
+func (v *Validator) ValidateUser(user models.User) error {
 	if user.Name == "" {
 		return errors.New("name is required")
 	}
@@ -49,25 +50,14 @@ func ValidateUser(user models.User) error {
 	if user.Email == "" {
 		return errors.New("email is required")
 	}
-	if !ValidateEmail(user.Email) {
+	if !v.ValidateEmail(user.Email) {
 		return errors.New("invalid email format")
 	}
 	if user.Password == "" {
 		return errors.New("password is required")
 	}
-	if !ValidatePassword(user.Password) {
+	if !v.ValidatePassword(user.Password) {
 		return errors.New("password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, and one digit")
 	}
 	return nil
-}
-
-func ReturnJSONError(err error) error {
-	jsonErr := map[string]string{
-		"error": err.Error(),
-	}
-	jsonBytes, err := json.Marshal(jsonErr)
-	if err != nil {
-		return err
-	}
-	return errors.New(string(jsonBytes))
 }

@@ -1,22 +1,28 @@
 package main
 
 import (
+	"bufio"
 	"context"
+	"database/sql"
 	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
 	"runtime"
+	"strings"
 	"syscall"
 	"time"
 
-	"github.com/youngjun827/api-std-lib/internal/database"
 	"github.com/youngjun827/api-std-lib/internal/database/models"
+	error_response "github.com/youngjun827/api-std-lib/internal/error"
+	"github.com/youngjun827/api-std-lib/internal/validator"
 )
 
 type application struct {
 	logger *slog.Logger
 	users  models.UserInterface
+	validator.Validator
+	error_response.ErrorResponse
 }
 
 func main() {
@@ -24,7 +30,7 @@ func main() {
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{AddSource: true}))
 
-	db, err := database.InitDB()
+	db, err := initDB()
 	if err != nil {
 		logger.Error("Database Connection Refused", "error", err)
 	}
@@ -65,4 +71,55 @@ func main() {
 		os.Exit(1)
 	}
 	logger.Info("Server Exited Properly")
+}
+
+
+func initDB() (*sql.DB, error) {
+	errEnv := loadEnvVariables()
+	if errEnv != nil {
+		slog.Error("Error loading .env file", "error", errEnv)
+		return nil, errEnv
+	}
+
+	connStr := os.Getenv("DB_SOURCE")
+
+	db, err := sql.Open("postgres", connStr)
+	if err != nil {
+		slog.Error("Failed to connect to database", "error", err)
+		return nil, err
+	}
+	if err = db.Ping(); err != nil {
+		slog.Error("Failed to ping the database", "error", err)
+		return nil, err
+	}
+
+	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(5)
+	db.SetConnMaxLifetime(time.Minute)
+
+	return db, nil
+}
+
+func loadEnvVariables() error {
+	file, err := os.Open(".env")
+	if err != nil {
+		slog.Error("Failed to load the environment variable .env", "error", err)
+		return err
+	}
+	defer file.Close()
+	lines := make([]string, 0)
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+	for _, line := range lines {
+		parts := strings.SplitN(line, "=", 2)
+		if len(parts) == 2 {
+			key := strings.TrimSpace(parts[0])
+			value := strings.TrimSpace(parts[1])
+			os.Setenv(key, value)
+		}
+	}
+
+	return nil
 }

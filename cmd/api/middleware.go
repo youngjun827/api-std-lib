@@ -1,4 +1,4 @@
-package middleware
+package main
 
 import (
 	"fmt"
@@ -37,7 +37,7 @@ func periodicCleanup() {
 	}
 }
 
-func RateLimiter(next http.Handler) http.Handler {
+func (app *application) RateLimiter(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		clientIP := r.RemoteAddr
 
@@ -48,7 +48,7 @@ func RateLimiter(next http.Handler) http.Handler {
 
 		if requestCount >= requestLimit {
 			err := fmt.Errorf("Rate limit exceeded for client IP: %s", clientIP)
-			JSONError(w, err, 429)
+			app.JsonErrorResponse(w, err, 429)
 			return
 		}
 
