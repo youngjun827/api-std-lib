@@ -22,7 +22,7 @@ type application struct {
 func main() {
 	runtime.GOMAXPROCS(1)
 
-	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{ AddSource: true,}))
+	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{AddSource: true}))
 
 	db, err := database.InitDB()
 	if err != nil {

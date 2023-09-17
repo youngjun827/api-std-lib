@@ -115,7 +115,7 @@ func (app *application) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	err = app.users.DeleteUserQuery(id)
 	if err != nil {
-		if errors.Is(err, models.ErrNoModels)  {
+		if errors.Is(err, models.ErrNoModels) {
 			middleware.JSONError(w, fmt.Errorf("User with ID %d not found", id), http.StatusNotFound)
 			return
 		}

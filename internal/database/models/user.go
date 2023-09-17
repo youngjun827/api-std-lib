@@ -29,7 +29,7 @@ func (m *UserModel) CreateUserQuery(user User) (int, error) {
 	var id int
 	err := m.DB.QueryRow(sqlStatement, user.Name, user.Email, user.Password).Scan(&id)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows){
+		if errors.Is(err, sql.ErrNoRows) {
 			return 0, ErrNoModels
 		} else {
 			return 0, err
@@ -82,7 +82,7 @@ func (m *UserModel) UpdateUserQuery(id int, user User) error {
 	sqlStatement := `UPDATE users SET name=$1, email=$2, password=$3 WHERE id=$4`
 	_, err := m.DB.Exec(sqlStatement, user.Name, user.Email, user.Password, id)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows){
+		if errors.Is(err, sql.ErrNoRows) {
 			return ErrNoModels
 		} else {
 			return err
@@ -95,7 +95,7 @@ func (m *UserModel) DeleteUserQuery(id int) error {
 	sqlStatement := `DELETE FROM users WHERE id=$1`
 	_, err := m.DB.Exec(sqlStatement, id)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows){
+		if errors.Is(err, sql.ErrNoRows) {
 			return ErrNoModels
 		} else {
 			return err

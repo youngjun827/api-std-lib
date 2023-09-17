@@ -218,7 +218,6 @@ func TestListUsers(t *testing.T) {
 	}
 }
 func TestListUsers_InternalServerError(t *testing.T) {
-
 	app := setupMockApp()
 	app.users = mock.NewMockUserModel("ServerError")
 
@@ -296,7 +295,6 @@ func TestUpdateUser_InvalidUser(t *testing.T) {
 
 	app.UpdateUser(rr, req)
 
-	// Check the response status code.
 	if status := rr.Code; status != http.StatusBadRequest {
 		t.Errorf("Handler returned wrong status code for invalid user: got %v want %v", status, http.StatusBadRequest)
 	}
@@ -343,7 +341,6 @@ func TestUpdateUser_InternalServerError(t *testing.T) {
 func TestDeleteUser(t *testing.T) {
 	app := setupMockApp()
 
-	// Assume the user with ID 1 exists
 	userID := 1
 
 	req, _ := http.NewRequest(http.MethodDelete, fmt.Sprintf("/user/%d", userID), nil)
@@ -373,7 +370,6 @@ func TestDeleteUser_UserNotFound(t *testing.T) {
 	app := setupMockApp()
 	app.users = mock.NewMockUserModel("NoMatch")
 
-	// Assume the user with ID 999 does not exist
 	nonExistingUserID := 999
 
 	req, _ := http.NewRequest(http.MethodDelete, fmt.Sprintf("/user/%d", nonExistingUserID), nil)
@@ -388,7 +384,7 @@ func TestDeleteUser_UserNotFound(t *testing.T) {
 
 func TestDeleteUser_InternalServerError(t *testing.T) {
 	app := setupMockApp()
-	app.users = mock.NewMockUserModel("ServerError") 
+	app.users = mock.NewMockUserModel("ServerError")
 
 	userID := 1
 
