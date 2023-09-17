@@ -12,6 +12,25 @@ import (
 	"github.com/youngjun827/api-std-lib/internal/middleware"
 )
 
+func handleUserQueryResult(w http.ResponseWriter, err error, data interface{}, successStatus int) {
+    if err != nil {
+        if errors.Is(err, models.ErrNoModels) {
+            middleware.JSONError(w, fmt.Errorf("User not found"), http.StatusNotFound)
+        } else {
+            middleware.JSONError(w, err, http.StatusInternalServerError)
+        }
+        return
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    if data != nil {
+        w.WriteHeader(successStatus)
+        json.NewEncoder(w).Encode(data)
+    } else {
+        w.WriteHeader(successStatus)
+    }
+}
+
 func (app *application) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	decoder := json.NewDecoder(r.Body)
@@ -27,15 +46,7 @@ func (app *application) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	id, err := app.users.CreateUserQuery(user)
-	if err != nil {
-		if errors.Is(err, models.ErrNoModels) {
-			middleware.JSONError(w, fmt.Errorf("User already exists"), http.StatusNotFound)
-		}
-		middleware.JSONError(w, err, http.StatusInternalServerError)
-	}
-
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(id)
+	handleUserQueryResult(w, err, id, http.StatusCreated)
 }
 
 func (app *application) GetUser(w http.ResponseWriter, r *http.Request) {
@@ -47,28 +58,12 @@ func (app *application) GetUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user, err := app.users.GetUserByIDQuery(id)
-	if err != nil {
-		if errors.Is(err, models.ErrNoModels) {
-			middleware.JSONError(w, fmt.Errorf("User with ID %d not found", id), http.StatusNotFound)
-			return
-		}
-		middleware.JSONError(w, err, http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(user)
+	handleUserQueryResult(w, err, user, http.StatusOK)
 }
 
 func (app *application) ListUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := app.users.ListUsersQuery()
-	if err != nil {
-		middleware.JSONError(w, err, http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(users)
+	handleUserQueryResult(w, err, users, http.StatusOK)
 }
 
 func (app *application) UpdateUser(w http.ResponseWriter, r *http.Request) {
@@ -93,16 +88,7 @@ func (app *application) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = app.users.UpdateUserQuery(id, user)
-	if err != nil {
-		if errors.Is(err, models.ErrNoModels) {
-			middleware.JSONError(w, fmt.Errorf("User with ID %d not found", id), http.StatusNotFound)
-			return
-		}
-		middleware.JSONError(w, err, http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
+	handleUserQueryResult(w, err, nil, http.StatusOK)
 }
 
 func (app *application) DeleteUser(w http.ResponseWriter, r *http.Request) {
@@ -114,14 +100,5 @@ func (app *application) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = app.users.DeleteUserQuery(id)
-	if err != nil {
-		if errors.Is(err, models.ErrNoModels) {
-			middleware.JSONError(w, fmt.Errorf("User with ID %d not found", id), http.StatusNotFound)
-			return
-		}
-		middleware.JSONError(w, err, http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusNoContent)
+	handleUserQueryResult(w, err, nil, http.StatusNoContent)
 }
