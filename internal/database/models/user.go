@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"errors"
 	"log/slog"
 )
 
@@ -28,8 +29,11 @@ func (m *UserModel) CreateUserQuery(user User) (int, error) {
 	var id int
 	err := m.DB.QueryRow(sqlStatement, user.Name, user.Email, user.Password).Scan(&id)
 	if err != nil {
-		slog.Error("Failed to create user", "error", err)
-		return 0, err
+		if errors.Is(err, sql.ErrNoRows){
+			return 0, ErrNoModels
+		} else {
+			return 0, err
+		}
 	}
 	return id, nil
 }
@@ -40,8 +44,11 @@ func (m *UserModel) GetUserByIDQuery(id int) (User, error) {
 	var user User
 	err := row.Scan(&user.ID, &user.Name, &user.Email, &user.Password)
 	if err != nil {
-		slog.Error("Failed to get user by ID", "error", err)
-		return User{}, err
+		if errors.Is(err, sql.ErrNoRows) {
+			return User{}, ErrNoModels
+		} else {
+			return User{}, err
+		}
 	}
 	return user, nil
 }
@@ -75,8 +82,11 @@ func (m *UserModel) UpdateUserQuery(id int, user User) error {
 	sqlStatement := `UPDATE users SET name=$1, email=$2, password=$3 WHERE id=$4`
 	_, err := m.DB.Exec(sqlStatement, user.Name, user.Email, user.Password, id)
 	if err != nil {
-		slog.Error("Failed to update user", "error", err)
-		return err
+		if errors.Is(err, sql.ErrNoRows){
+			return ErrNoModels
+		} else {
+			return err
+		}
 	}
 	return nil
 }
@@ -85,8 +95,11 @@ func (m *UserModel) DeleteUserQuery(id int) error {
 	sqlStatement := `DELETE FROM users WHERE id=$1`
 	_, err := m.DB.Exec(sqlStatement, id)
 	if err != nil {
-		slog.Error("Failed to delete user", "error", err)
-		return err
+		if errors.Is(err, sql.ErrNoRows){
+			return ErrNoModels
+		} else {
+			return err
+		}
 	}
 	return nil
 }

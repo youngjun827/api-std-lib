@@ -1,8 +1,8 @@
 package main
 
 import (
-	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -28,12 +28,10 @@ func (app *application) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	id, err := app.users.CreateUserQuery(user)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			middleware.JSONError(w, fmt.Errorf("User already exists"), http.StatusBadRequest)
-			return
+		if errors.Is(err, models.ErrNoModels) {
+			middleware.JSONError(w, fmt.Errorf("User already exists"), http.StatusNotFound)
 		}
 		middleware.JSONError(w, err, http.StatusInternalServerError)
-		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
@@ -50,7 +48,7 @@ func (app *application) GetUser(w http.ResponseWriter, r *http.Request) {
 
 	user, err := app.users.GetUserByIDQuery(id)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, models.ErrNoModels) {
 			middleware.JSONError(w, fmt.Errorf("User with ID %d not found", id), http.StatusNotFound)
 			return
 		}
@@ -82,6 +80,7 @@ func (app *application) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var user models.User
+
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&user); err != nil {
 		middleware.JSONError(w, err, http.StatusBadRequest)
@@ -95,7 +94,7 @@ func (app *application) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	err = app.users.UpdateUserQuery(id, user)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, models.ErrNoModels) {
 			middleware.JSONError(w, fmt.Errorf("User with ID %d not found", id), http.StatusNotFound)
 			return
 		}
@@ -116,7 +115,7 @@ func (app *application) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	err = app.users.DeleteUserQuery(id)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, models.ErrNoModels)  {
 			middleware.JSONError(w, fmt.Errorf("User with ID %d not found", id), http.StatusNotFound)
 			return
 		}

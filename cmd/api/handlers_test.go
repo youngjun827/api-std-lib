@@ -83,7 +83,7 @@ func TestCreateUser_InvalidUser(t *testing.T) {
 
 func TestCreateUser_UserExists(t *testing.T) {
 	app := setupMockApp()
-	app.users = mock.NewMockUserModel(true)
+	app.users = mock.NewMockUserModel("NoMatch")
 
 	userData := generateUserData()
 	userData.Email = "exists@example.com"
@@ -95,14 +95,14 @@ func TestCreateUser_UserExists(t *testing.T) {
 
 	app.CreateUser(rr, req)
 
-	if status := rr.Code; status != http.StatusBadRequest {
-		t.Errorf("Handler returned wrong status code for existing user: got %v want %v", status, http.StatusBadRequest)
+	if status := rr.Code; status != http.StatusNotFound {
+		t.Errorf("Handler returned wrong status code for existing user: got %v want %v", status, http.StatusNotFound)
 	}
 }
 
-func TestCreateUser_UnexpectedError(t *testing.T) {
+func TestCreateUser_InternalServerError(t *testing.T) {
 	app := setupMockApp()
-	app.users = mock.NewMockUserModel(true)
+	app.users = mock.NewMockUserModel("ServerError")
 
 	userData := generateUserData()
 	jsonData, _ := json.Marshal(userData)
@@ -146,7 +146,7 @@ func TestGetUser(t *testing.T) {
 	}
 }
 
-func TestGetUser_InvalidID(t *testing.T) {
+func TestGetUser_InvalidInputParameter(t *testing.T) {
 	app := setupMockApp()
 
 	req, _ := http.NewRequest(http.MethodGet, "/user/invalid", nil)
@@ -161,6 +161,7 @@ func TestGetUser_InvalidID(t *testing.T) {
 
 func TestGetUser_UserNotFound(t *testing.T) {
 	app := setupMockApp()
+	app.users = mock.NewMockUserModel("NoMatch")
 
 	nonExistingUserID := 999
 
@@ -176,8 +177,7 @@ func TestGetUser_UserNotFound(t *testing.T) {
 
 func TestGetUser_InternalServerError(t *testing.T) {
 	app := setupMockApp()
-
-	app.users.(*mock.MockUserModel).ErrorMode = true
+	app.users = mock.NewMockUserModel("ServerError")
 
 	userID := 1
 
@@ -220,7 +220,7 @@ func TestListUsers(t *testing.T) {
 func TestListUsers_InternalServerError(t *testing.T) {
 
 	app := setupMockApp()
-	app.users = mock.NewMockUserModel(true)
+	app.users = mock.NewMockUserModel("ServerError")
 
 	req, err := http.NewRequest(http.MethodGet, "/users", nil)
 	if err != nil {
@@ -236,7 +236,7 @@ func TestListUsers_InternalServerError(t *testing.T) {
 	}
 }
 
-func TestUpdateUser_StatusOK(t *testing.T) {
+func TestUpdateUser(t *testing.T) {
 	app := setupMockApp()
 
 	user := models.User{
@@ -304,6 +304,7 @@ func TestUpdateUser_InvalidUser(t *testing.T) {
 
 func TestUpdateUser_UserNotFound(t *testing.T) {
 	app := setupMockApp()
+	app.users = mock.NewMockUserModel("NoMatch")
 
 	nonExistingUserID := 999
 
@@ -321,9 +322,9 @@ func TestUpdateUser_UserNotFound(t *testing.T) {
 	}
 }
 
-func TestUpdateUser_UnexpectedError(t *testing.T) {
+func TestUpdateUser_InternalServerError(t *testing.T) {
 	app := setupMockApp()
-	app.users = mock.NewMockUserModel(true)
+	app.users = mock.NewMockUserModel("ServerError")
 
 	userData := generateUserData()
 
@@ -339,7 +340,7 @@ func TestUpdateUser_UnexpectedError(t *testing.T) {
 	}
 }
 
-func TestDeleteUser_Success(t *testing.T) {
+func TestDeleteUser(t *testing.T) {
 	app := setupMockApp()
 
 	// Assume the user with ID 1 exists
@@ -370,6 +371,7 @@ func TestDeleteUser_InvalidInputParameter(t *testing.T) {
 
 func TestDeleteUser_UserNotFound(t *testing.T) {
 	app := setupMockApp()
+	app.users = mock.NewMockUserModel("NoMatch")
 
 	// Assume the user with ID 999 does not exist
 	nonExistingUserID := 999
@@ -384,11 +386,10 @@ func TestDeleteUser_UserNotFound(t *testing.T) {
 	}
 }
 
-func TestDeleteUser_UnexpectedError(t *testing.T) {
+func TestDeleteUser_InternalServerError(t *testing.T) {
 	app := setupMockApp()
-	app.users = mock.NewMockUserModel(true) // Simulate an unexpected error
+	app.users = mock.NewMockUserModel("ServerError") 
 
-	// Assume the user with ID 1 exists
 	userID := 1
 
 	req, _ := http.NewRequest(http.MethodDelete, fmt.Sprintf("/user/%d", userID), nil)
