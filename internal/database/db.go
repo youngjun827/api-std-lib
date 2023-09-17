@@ -25,6 +25,7 @@ func InitDB() (*sql.DB, error) {
 		return nil, err
 	}
 	if err = db.Ping(); err != nil {
+		slog.Error("Failed to ping the database", "error", err)
 		return nil, err
 	}
 

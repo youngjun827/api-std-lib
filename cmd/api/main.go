@@ -49,7 +49,7 @@ func main() {
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			logger.Error("Could not start server: %v", err)
+			logger.Error("Could not start server", "error", err)
 			os.Exit(1)
 		}
 	}()
@@ -61,7 +61,7 @@ func main() {
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
-		logger.Error("Server Shutdown Failed: %v", err)
+		logger.Error("Server Shutdown Failed", "error", err)
 		os.Exit(1)
 	}
 	logger.Info("Server Exited Properly")
