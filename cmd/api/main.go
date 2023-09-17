@@ -22,11 +22,11 @@ type application struct {
 func main() {
 	runtime.GOMAXPROCS(1)
 
-	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{ AddSource: true,}))
 
 	db, err := database.InitDB()
 	if err != nil {
-		logger.Error(err.Error())
+		logger.Error("Database Connection Refused", "error", err)
 	}
 
 	app := &application{
