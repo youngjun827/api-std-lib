@@ -8,10 +8,9 @@ env:
   KUBE_CONFIG: ${{ secrets.KUBE_CONFIG}}
 
 jobs:
-
   deploy:
     name: Build image
-    runs-on: ubuntu-latest
+    runs-on: "self-hosted"
 
     steps:
     - name: Check out code
