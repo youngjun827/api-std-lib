@@ -74,7 +74,6 @@ func main() {
 	logger.Info("Server Exited Properly")
 }
 
-
 func initDB() (*sql.DB, error) {
 	errEnv := loadEnvVariables()
 	if errEnv != nil {

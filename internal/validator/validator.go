@@ -9,7 +9,7 @@ import (
 	"github.com/youngjun827/api-std-lib/internal/database/models"
 )
 
-type Validator struct {}
+type Validator struct{}
 
 func (v *Validator) ValidateEmail(email string) bool {
 	_, err := mail.ParseAddress(email)
