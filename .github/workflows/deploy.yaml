@@ -4,6 +4,9 @@ on:
   push:
     branches: [main]
 
+env:
+  KUBE_CONFIG: ${{ secrets.KUBE_CONFIG}}
+
 jobs:
 
   deploy:
@@ -13,12 +16,6 @@ jobs:
     steps:
     - name: Check out code
       uses: actions/checkout@v2
-
-    - name: Install kubectl
-      uses: azure/setup-kubectl@v1
-      with:
-        version: 'v1.21.3'
-      id: install
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -43,14 +40,32 @@ jobs:
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
         docker push -a $ECR_REGISTRY/$ECR_REPOSITORY
 
-    - name: Update kube config
-      run: aws eks update-kubeconfig --name api-std-lib --region us-east-1
+    - name: Deploy App(Auth)
+      uses: actions-hub/kubectl@master
+      with:
+        args: apply -f k9s/aws-auth.yaml
+    
+    - name: Deploy App(Deployment)
+      uses: actions-hub/kubectl@master
+      with:
+        args: apply -f k9s/deployment.yaml
 
-    - name: Deploy image to Amazon EKS
-      run: |
-        kubectl apply -f eks/aws-auth.yaml
-        kubectl apply -f eks/deployment.yaml
-        kubectl apply -f eks/service.yaml
-        kubectl apply -f eks/issuer.yaml
-        kubectl apply -f eks/ingress.yaml
-        kubectl rollout restart deploy api-std-lib-api-deployment
+    - name: Deploy App(Service)
+      uses: actions-hub/kubectl@master
+      with:
+        args: apply -f k9s/service.yaml
+    
+    - name: Deploy App(Issuer)
+      uses: actions-hub/kubectl@master
+      with:
+        args: apply -f k9s/issuer.yaml
+
+    - name: Deploy App(Ingress)
+      uses: actions-hub/kubectl@master
+      with:
+        args: apply -f k9s/ingress.yaml
+    
+    - name: Deploy App(Restart)
+      uses: actions-hub/kubectl@master
+      with:
+        args: rollout restart deploy api-std-lib-api-deployment
