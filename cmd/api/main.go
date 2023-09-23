@@ -13,6 +13,7 @@ import (
 	"syscall"
 	"time"
 
+	_ "github.com/lib/pq"
 	"github.com/youngjun827/api-std-lib/internal/database/models"
 	error_response "github.com/youngjun827/api-std-lib/internal/error"
 	"github.com/youngjun827/api-std-lib/internal/validator"
