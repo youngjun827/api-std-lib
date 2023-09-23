@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func (app *application) SetupRoutes() *http.ServeMux {
+func (app *application) SetupRoutes() http.Handler {
 	mux := http.NewServeMux()
 
 	usersHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
