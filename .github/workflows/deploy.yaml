@@ -42,29 +42,35 @@ jobs:
     - name: Deploy App(Auth)
       uses: actions-hub/kubectl@master
       with:
+        kubeconfig: ${{ secrets.KUBE_CONFIG }}
         args: apply -f k9s/aws-auth.yaml
     
     - name: Deploy App(Deployment)
       uses: actions-hub/kubectl@master
       with:
+        kubeconfig: ${{ secrets.KUBE_CONFIG }}
         args: apply -f k9s/deployment.yaml
 
     - name: Deploy App(Service)
       uses: actions-hub/kubectl@master
       with:
+        kubeconfig: ${{ secrets.KUBE_CONFIG }}
         args: apply -f k9s/service.yaml
     
     - name: Deploy App(Issuer)
       uses: actions-hub/kubectl@master
       with:
+        kubeconfig: ${{ secrets.KUBE_CONFIG }}
         args: apply -f k9s/issuer.yaml
 
     - name: Deploy App(Ingress)
       uses: actions-hub/kubectl@master
       with:
+        kubeconfig: ${{ secrets.KUBE_CONFIG }}
         args: apply -f k9s/ingress.yaml
     
     - name: Deploy App(Restart)
       uses: actions-hub/kubectl@master
       with:
+        kubeconfig: ${{ secrets.KUBE_CONFIG }}
         args: rollout restart deploy api-std-lib-api-deployment
