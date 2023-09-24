@@ -51,6 +51,9 @@ jobs:
 
     - name: Deploy App(Auth)
       run: kubectl apply -f k9s/aws-auth.yaml
+
+    - name: Set up Secrets(Secrets)
+      run: kubectl apply -f k9s/secrets.yaml
     
     - name: Deploy App(Deployment)
       run: kubectl apply -f k9s/deployment.yaml
