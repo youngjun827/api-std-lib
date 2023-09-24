@@ -64,5 +64,3 @@ jobs:
     - name: Deploy App(Ingress)
       run: kubectl apply -f k9s/ingress.yaml
     
-    - name: Deploy App(Restart)
-      run: kubectl rollout restart deploy api-std-lib-api-deployment
