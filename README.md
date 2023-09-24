@@ -13,7 +13,6 @@
 ## Introduction
 
 This project is a RESTful API built with Go, utilizing only its standard library. It serves as a basic CRUD (Create, Read, Update, Delete) application for managing user data.
-Tests
 
 ## Features
 
