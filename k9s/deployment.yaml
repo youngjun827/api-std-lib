@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: api-std-lib-api
-        image: youngjun827/api-std-lib-public:latest
+        image: youngjun827/api-std-lib:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8081
