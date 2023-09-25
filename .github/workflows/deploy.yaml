@@ -37,6 +37,7 @@ jobs:
         IMAGE_TAG: ${{ github.sha }}
       run: |
         docker build -t $DOCKER_HUB_REPO:$IMAGE_TAG -t $DOCKER_HUB_REPO:latest .
+        docker push $DOCKER_HUB_REPO:$IMAGE_TAG
         docker push $DOCKER_HUB_REPO:latest
     
     - name: Debug Kubectl Configuration
