@@ -39,7 +39,7 @@ jobs:
     - name: Build, tag, and push image to Amazon ECR
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: api-std-lib
+        ECR_REPOSITORY: api-std-lib-public
         IMAGE_TAG: ${{ github.sha }}
       run: |
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
@@ -51,9 +51,6 @@ jobs:
 
     - name: Deploy App(Auth)
       run: kubectl apply -f k9s/aws-auth.yaml
-
-    - name: Set up Secrets(Secrets)
-      run: kubectl apply -f k9s/secrets.yaml
     
     - name: Deploy App(Deployment)
       run: kubectl apply -f k9s/deployment.yaml

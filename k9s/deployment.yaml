@@ -14,11 +14,9 @@ spec:
       labels:
         app: api-std-lib-api
     spec:
-      imagePullSecrets:
-      - name: secret-registry
       containers:
       - name: api-std-lib-api
-        image: 989421027713.dkr.ecr.us-east-1.amazonaws.com/api-std-lib:latest
+        image: public.ecr.aws/m1h7d8c2/api-std-lib-public:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8081
