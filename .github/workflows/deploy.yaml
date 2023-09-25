@@ -37,10 +37,6 @@ jobs:
       run: aws secretsmanager get-secret-value --secret-id api_std_lib --query SecretString --output text | jq -r 'to_entries|map("\(.key)=\(.value)")|.[]' > .env
 
  `  - name: Debug ECR
-      env:
-        ECR_REGISTRY: public.ecr.aws/m1h7d8c2
-        ECR_REPOSITORY: api-std-lib-public
-        IMAGE_TAG: ${{ github.sha }}
       run: |
         echo "ECR_REGISTRY: $ECR_REGISTRY"
         echo "ECR_REPOSITORY: $ECR_REPOSITORY"
