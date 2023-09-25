@@ -9,7 +9,7 @@ env:
 
 jobs:
   deploy:
-    name: Build image
+    name: Build image and push to Docker Hub
     runs-on: "self-hosted"
 
     steps:
@@ -22,28 +22,23 @@ jobs:
         version: 'v1.21.3'
       id: install
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
+    - name: Login to Docker Hub
+      uses: docker/login-action@v1
       with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
-
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
     - name: Load secrets from AWS secret manager and save to .env
       run: aws secretsmanager get-secret-value --secret-id api_std_lib --query SecretString --output text | jq -r 'to_entries|map("\(.key)=\(.value)")|.[]' > .env
 
-    - name: Build, tag, and push image to Amazon ECR
+    - name: Build, tag, and push image to Docker Hub
       env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: api-std-lib-public
+        DOCKER_HUB_REPO: youngjun827/api-std-lib
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
-        docker push -a $ECR_REGISTRY/$ECR_REPOSITORY
+        docker build -t $DOCKER_HUB_REPO:$IMAGE_TAG -t $DOCKER_HUB_REPO:latest .
+        docker push $DOCKER_HUB_REPO:$IMAGE_TAG
+        docker push $DOCKER_HUB_REPO:latest
     
     - name: Debug Kubectl Configuration
       run: |

@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: api-std-lib-api
-        image: public.ecr.aws/m1h7d8c2/api-std-lib-public:latest
+        image: youngjun827/api-std-lib-public:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8081
