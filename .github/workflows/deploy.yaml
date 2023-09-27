@@ -51,12 +51,6 @@ jobs:
 
     - name: Deploy App(Service)
       run: kubectl apply -f k9s/service.yaml
-    
-    - name: Deploy App(Issuer)
-      run: kubectl apply -f k9s/issuer.yaml
-
-    - name: Deploy App(Ingress)
-      run: kubectl apply -f k9s/ingress.yaml
 
     - name: Deploy App(Restart)
       run: kubectl rollout restart deploy api-std-lib-api-deployment
