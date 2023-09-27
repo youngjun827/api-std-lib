@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"runtime"
 	"strings"
 	"syscall"
 	"time"
@@ -27,8 +26,6 @@ type application struct {
 }
 
 func main() {
-	runtime.GOMAXPROCS(1)
-
 	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{AddSource: true}))
 
 	db, err := initDB()
