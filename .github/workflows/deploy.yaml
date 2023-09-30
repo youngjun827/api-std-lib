@@ -44,13 +44,13 @@ jobs:
        cat $HOME/.kube/config
 
     - name: Deploy App(Auth)
-      run: kubectl apply -f k9s/aws-auth.yaml
+      run: kubectl apply -f k8s/aws-auth.yaml
     
     - name: Deploy App(Deployment)
-      run: kubectl apply -f k9s/deployment.yaml
+      run: kubectl apply -f k8s/deployment.yaml
 
     - name: Deploy App(Service)
-      run: kubectl apply -f k9s/service.yaml
+      run: kubectl apply -f k8s/service.yaml
 
     - name: Deploy App(Restart)
       run: kubectl rollout restart deploy api-std-lib-api-deployment
