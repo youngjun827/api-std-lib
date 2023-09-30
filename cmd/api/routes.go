@@ -10,6 +10,8 @@ func (app *application) SetupRoutes() http.Handler {
 
 	usersHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
+		case http.MethodPost:
+			app.CreateUser(w, r)
 		case http.MethodGet:
 			app.ListUsers(w, r)
 		default:
@@ -19,8 +21,6 @@ func (app *application) SetupRoutes() http.Handler {
 
 	userHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
-		case http.MethodPost:
-			app.CreateUser(w, r)
 		case http.MethodGet:
 			app.GetUser(w, r)
 		case http.MethodPut:
